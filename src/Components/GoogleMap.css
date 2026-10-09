@@ -1,0 +1,364 @@
+/* ==========================================================
+   MISTRO BROWSER GEOLOCATION TRACKER STYLES
+   ========================================================== */
+
+.mistro-geolocation-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  animation: fadeInGeo 0.6s ease-out;
+  color: #fff;
+}
+
+@keyframes fadeInGeo {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Detect Location Main CTA Button */
+.btn-detect-location {
+  background: linear-gradient(135deg, #F97316, #ea580c);
+  color: #fff;
+  border: none;
+  padding: 16px 40px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(249, 115, 22, 0.35);
+  transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+
+.btn-detect-location:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(249, 115, 22, 0.45);
+}
+
+.btn-detect-location:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-detect-location:disabled {
+  background: #334155;
+  color: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Spinner inside button */
+.btn-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spinLoader 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spinLoader {
+  to { transform: rotate(360deg); }
+}
+
+/* Geolocation Error Alert Bar */
+.map-alert-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(239, 68, 68, 0.12);
+  border-left: 4px solid #ef4444;
+  padding: 14px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #fca5a5;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  font-family: 'Inter', sans-serif;
+  animation: slideInError 0.4s ease-out;
+}
+
+@keyframes slideInError {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.map-alert-error i {
+  color: #ef4444;
+  font-size: 16px;
+}
+
+/* Premium MISTRO Location Details Card */
+.location-details-card {
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.01);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  animation: slideUpCard 0.5s ease-out;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes slideUpCard {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.location-card-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.location-card-header h4 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.location-card-header .success-text {
+  margin: 0;
+  font-size: 14px;
+  color: #22c55e;
+}
+
+.location-card-header .pin-glow {
+  font-size: 24px;
+  color: #F97316;
+  filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.5));
+  animation: floatMarker 2s ease-in-out infinite;
+}
+
+@keyframes floatMarker {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Coordinate readout grid table */
+.location-coords-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.coord-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.coord-label {
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.coord-value {
+  font-size: 15px;
+  color: #fff;
+  font-family: monospace;
+  word-break: break-all;
+}
+
+/* Maps and Confirmation Button Triggers */
+.btn-open-maps {
+  background: rgba(249, 115, 22, 0.1);
+  border: 1px solid #F97316;
+  color: #F97316;
+  padding: 14px 22px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, transform 0.2s;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-open-maps:hover {
+  background: #F97316;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+}
+
+.btn-open-maps:active {
+  transform: translateY(0);
+}
+
+.btn-confirm-location {
+  background: linear-gradient(135deg, #1E3A8A, #1e40af);
+  color: #fff;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(30, 58, 138, 0.25);
+  transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+  text-align: center;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-confirm-location:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+}
+
+.btn-confirm-location:active {
+  transform: translateY(0);
+}
+
+.btn-re-detect {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+  padding: 5px 10px;
+}
+
+.btn-re-detect:hover {
+  color: #cbd5e1;
+}
+
+/* Confirmed State layout */
+.map-confirmed-card {
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(2, 6, 17, 0.9));
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  animation: fadeInGeo 0.4s ease-out;
+}
+
+.map-confirmed-card .confirmed-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.map-confirmed-card .success-badge {
+  background: #22c55e;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: bold;
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+  flex-shrink: 0;
+}
+
+.map-confirmed-card h3 {
+  margin: 0 0 5px;
+  font-size: 18px;
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.map-confirmed-card .confirmed-address {
+  margin: 0;
+  font-size: 14px;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+.map-confirmed-card .confirmed-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 14px 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.map-confirmed-card .confirmed-details div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.map-confirmed-card .confirmed-details span {
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.map-confirmed-card .confirmed-details strong {
+  font-size: 14px;
+  color: #fff;
+  font-family: monospace;
+}
+
+.btn-change-location {
+  background: rgba(249, 115, 22, 0.08);
+  border: 1px solid #F97316;
+  color: #F97316;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s, color 0.2s;
+  font-family: inherit;
+}
+
+.btn-change-location:hover {
+  background: #F97316;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+}
+
+.btn-change-location:active {
+  transform: translateY(0);
+}
+
+/* ==========================================================
+   RESPONSIVENESS CONTROLS
+   ========================================================== */
+
+@media (max-width: 768px) {
+  .location-coords-grid, .map-confirmed-card .confirmed-details {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .btn-open-maps, .btn-confirm-location {
+    padding: 12px;
+  }
+}

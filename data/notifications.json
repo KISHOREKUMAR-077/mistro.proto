@@ -1,0 +1,24 @@
+[
+  {
+    "id": "notif-1791527173349-800",
+    "userId": "usr-w-1791527173311-10",
+    "recipientRole": "worker",
+    "title": "New Booking Request",
+    "message": "New Electrical booking request from Arun Kumar for 6:00 PM.",
+    "type": "BOOKING_REQUEST",
+    "bookingId": "bk-17334667",
+    "read": false,
+    "createdAt": "2026-10-09T06:26:13.349Z"
+  },
+  {
+    "id": "notif-1791527173399-642",
+    "userId": "usr-1791527173334-142",
+    "recipientRole": "customer",
+    "title": "Payment Successful",
+    "message": "Your payment of ₹ was successfully processed!",
+    "type": "PAYMENT_SUCCESS",
+    "bookingId": "bk-17334667",
+    "read": false,
+    "createdAt": "2026-10-09T06:26:13.399Z"
+  }
+]

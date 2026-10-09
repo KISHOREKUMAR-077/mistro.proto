@@ -1,0 +1,54 @@
+[
+  {
+    "id": "srv-elect",
+    "name": "Electrical Services",
+    "category": "Electrical",
+    "icon": "⚡",
+    "startingPrice": 299,
+    "description": "Expert electrician support for wiring, fuse repairs, appliance installation, and smart lighting fixes.",
+    "features": [
+      "Instant 30-min Arrival",
+      "Verified Master Technicians",
+      "60-Day Work Warranty"
+    ]
+  },
+  {
+    "id": "srv-plumb",
+    "name": "Plumbing Solutions",
+    "category": "Plumbing",
+    "icon": "🔧",
+    "startingPrice": 349,
+    "description": "Rapid resolution for pipe leaks, drain blockages, tap replacements, and bathroom fixture installation.",
+    "features": [
+      "Advanced Leak Detection",
+      "Eco-friendly Materials",
+      "Clean-up Guarantee"
+    ]
+  },
+  {
+    "id": "srv-carp",
+    "name": "Carpentry & Assembly",
+    "category": "Carpentry",
+    "icon": "🪚",
+    "startingPrice": 399,
+    "description": "Custom furniture assembly, door & lock repair, modular cabinet installation, and custom woodworking.",
+    "features": [
+      "Precision Wood Tooling",
+      "Custom Lock Setup",
+      "Hardware Sourcing Included"
+    ]
+  },
+  {
+    "id": "srv-clean",
+    "name": "Full Home Deep Cleaning",
+    "category": "Cleaning",
+    "icon": "🧹",
+    "startingPrice": 599,
+    "description": "Comprehensive home cleaning, sofa shampooing, kitchen degreasing, and bathroom sanitization.",
+    "features": [
+      "Hospital-grade Sanitizers",
+      "Steam Scrubbing Equipment",
+      "Zero Residue Tech"
+    ]
+  }
+]

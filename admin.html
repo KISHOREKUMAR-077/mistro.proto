@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MISTRO - Admin Dashboard</title>
+  
+  <!-- Favicon Logo -->
+  <link rel="icon" type="image/png" href="mistro logo.png">
+  
+  <!-- CDNs for Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+
+  <div class="admin-container">
+    
+    <!-- LOGIN VIEW -->
+    <div class="admin-login-wrapper" id="admin-login-wrapper">
+      <div class="admin-login-box glass-card">
+        <div class="footer-logo" style="margin-bottom: 24px; justify-content: center;">
+          <img src="mistro logo.png" alt="MISTRO Logo" style="height: 4.5rem;">
+          <span style="font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em;">MISTRO</span>
+        </div>
+        <h2 style="text-align: center;">Admin Control</h2>
+        <p style="text-align: center;">Please authenticate to access database logs.</p>
+        
+        <form id="admin-login-form" class="modal-form">
+          <div class="form-group">
+            <label for="admin-username">Username</label>
+            <input type="text" id="admin-username" required placeholder="Enter username">
+          </div>
+          <div class="form-group" style="margin-bottom: 24px;">
+            <label for="admin-password">Password</label>
+            <input type="password" id="admin-password" required placeholder="Enter password">
+          </div>
+          <button type="submit" class="btn-accent w-full" id="admin-login-btn">Secure Log In</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div class="admin-dashboard-view" id="admin-dashboard-view">
+      <header class="admin-header">
+        <div class="admin-header-title">
+          <h1><i class="fas fa-sliders-h"></i> MISTRO Admin Dashboard</h1>
+          <p>Control center for scheduling, inquiries, and service matching</p>
+        </div>
+        <button class="btn-admin-logout" id="btn-logout">Logout</button>
+      </header>
+
+      <!-- Stats Counters Bar -->
+      <div class="admin-stats-bar">
+        <div class="admin-stat-card glass-card">
+          <div class="admin-stat-icon pending"><i class="fas fa-clock"></i></div>
+          <div class="admin-stat-info">
+            <h3 id="stat-pending-val">0</h3>
+            <p>Pending Requests</p>
+          </div>
+        </div>
+        <div class="admin-stat-card glass-card">
+          <div class="admin-stat-icon assigned"><i class="fas fa-user-cog"></i></div>
+          <div class="admin-stat-info">
+            <h3 id="stat-assigned-val">0</h3>
+            <p>Assigned Services</p>
+          </div>
+        </div>
+        <div class="admin-stat-card glass-card">
+          <div class="admin-stat-icon completed"><i class="fas fa-check-double"></i></div>
+          <div class="admin-stat-info">
+            <h3 id="stat-completed-val">0</h3>
+            <p>Completed Jobs</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Selectors -->
+      <div class="admin-tabs">
+        <button class="admin-tab-btn active" data-tab="bookings-tab">Bookings Requests</button>
+        <button class="admin-tab-btn" data-tab="inquiries-tab">Customer Messages</button>
+      </div>
+
+      <!-- Bookings Content Tab -->
+      <section class="admin-panel-section active" id="bookings-tab">
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Phone</th>
+                <th>Service</th>
+                <th>Schedule Date & Slot</th>
+                <th>Service Address</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bookings-table-body">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Inquiries Content Tab -->
+      <section class="admin-panel-section" id="inquiries-tab">
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email Address</th>
+                <th>Message Detail</th>
+                <th>Received Date</th>
+              </tr>
+            </thead>
+            <tbody id="inquiries-table-body">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+  </div>
+
+  <!-- Toast Notification element -->
+  <div class="mistro-toast"></div>
+
+  <!-- Admin Dashboard JavaScript Logic -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const loginWrapper = document.getElementById('admin-login-wrapper');
+      const dashboardView = document.getElementById('admin-dashboard-view');
+      const loginForm = document.getElementById('admin-login-form');
+      const logoutBtn = document.getElementById('btn-logout');
+      const tabButtons = document.querySelectorAll('.admin-tab-btn');
+      const tabSections = document.querySelectorAll('.admin-panel-section');
+      
+      const toast = document.querySelector('.mistro-toast');
+
+      // Toast helper
+      function showToast(message, isError = false) {
+        const icon = isError ? 'fa-exclamation-triangle' : 'fa-check-circle';
+        toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+        toast.classList.add('active');
+        setTimeout(() => {
+          toast.classList.remove('active');
+        }, 4000);
+      }
+
+      // Check for active token
+      let token = localStorage.getItem('mistro_admin_token');
+      if (token) {
+        initDashboard();
+      } else {
+        loginWrapper.style.display = 'flex';
+        dashboardView.classList.remove('active');
+      }
+
+      // Handle login submission
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('admin-username').value.trim();
+        const password = document.getElementById('admin-password').value.trim();
+        
+        const loginBtn = document.getElementById('admin-login-btn');
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Authenticating...';
+
+        try {
+          const res = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+          const result = await res.json();
+          
+          if (result.success) {
+            token = result.token;
+            localStorage.setItem('mistro_admin_token', token);
+            showToast('Authentication successful!');
+            loginForm.reset();
+            initDashboard();
+          } else {
+            showToast(result.error || 'Invalid credentials.', true);
+          }
+        } catch (err) {
+          console.error(err);
+          showToast('Connection error. Could not connect to API server.', true);
+        } finally {
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Secure Log In';
+        }
+      });
+
+      // Handle logout click
+      logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('mistro_admin_token');
+        token = null;
+        loginWrapper.style.display = 'flex';
+        dashboardView.classList.remove('active');
+        showToast('Logged out successfully.');
+      });
+
+      // Tab selector behavior
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const targetTab = btn.getAttribute('data-tab');
+          tabSections.forEach(sec => {
+            if (sec.id === targetTab) {
+              sec.classList.add('active');
+            } else {
+              sec.classList.remove('active');
+            }
+          });
+        });
+      });
+
+      // Init dashboard panel and fetch records
+      async function initDashboard() {
+        loginWrapper.style.display = 'none';
+        dashboardView.classList.add('active');
+        await fetchAndRenderData();
+      }
+
+      let providersList = [];
+
+      // Main fetching controller
+      async function fetchAndRenderData() {
+        try {
+          const [bookingsRes, inquiriesRes, statsRes, providersRes] = await Promise.all([
+            fetch('/api/bookings', { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch('/api/contacts', { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch('/api/stats', { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch('/api/providers')
+          ]);
+
+          if (bookingsRes.status === 401 || inquiriesRes.status === 401) {
+            // Token expired or invalid
+            localStorage.removeItem('mistro_admin_token');
+            token = null;
+            loginWrapper.style.display = 'flex';
+            dashboardView.classList.remove('active');
+            showToast('Session expired. Please log in again.', true);
+            return;
+          }
+
+          const bookingsData = await bookingsRes.json();
+          const inquiriesData = await inquiriesRes.json();
+          const statsData = await statsRes.json();
+          const providersData = await providersRes.json();
+
+          if (providersData.success) {
+            providersList = providersData.providers;
+          }
+
+          if (bookingsData.success && inquiriesData.success) {
+            renderBookings(bookingsData.bookings);
+            renderInquiries(inquiriesData.contacts);
+          }
+
+          if (statsData.success) {
+            updateStats(statsData.stats);
+          }
+        } catch (err) {
+          console.error(err);
+          showToast('Failed to retrieve logs from server.', true);
+        }
+      }
+
+      // Render Bookings Table
+      function renderBookings(bookings) {
+        const tbody = document.getElementById('bookings-table-body');
+        tbody.innerHTML = '';
+
+        if (!bookings || bookings.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" class="no-records">No booking requests found in the database.</td></tr>`;
+          return;
+        }
+
+        // Display newest first
+        bookings.slice().reverse().forEach(b => {
+          const tr = document.createElement('tr');
+          
+          let badgeClass = 'badge-pending';
+          if (b.status === 'Assigned') badgeClass = 'badge-assigned';
+          if (b.status === 'Completed') badgeClass = 'badge-completed';
+
+          // Provider info html if assigned
+          let providerDetail = '';
+          if (b.assignedProvider) {
+            providerDetail = `<br><small style="color: #60a5fa;"><i class="fas fa-user-check"></i> ${escapeHtml(b.assignedProvider.name)}</small>`;
+          }
+
+          let actionsHtml = '';
+          if (b.status === 'Pending') {
+            // Build matching provider options for this service
+            const matchingProviders = providersList.filter(p => p.service.toLowerCase().includes(b.service.toLowerCase()) || b.service.toLowerCase().includes(p.service.toLowerCase()));
+            let providerOptions = matchingProviders.map(p => `<option value="${p.id}">${escapeHtml(p.name)} (${p.badge})</option>`).join('');
+            if (!providerOptions) {
+              providerOptions = providersList.map(p => `<option value="${p.id}">${escapeHtml(p.name)} - ${p.service}</option>`).join('');
+            }
+
+            actionsHtml = `
+              <div class="admin-actions" style="display: flex; flex-direction: column; gap: 5px;">
+                <div style="display: flex; gap: 5px;">
+                  <select id="prov-select-${b.id}" style="background: rgba(0,0,0,0.4); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 4px; font-size: 11px;">
+                    ${providerOptions}
+                  </select>
+                  <button class="btn-table-action btn-assign" onclick="assignProvider('${b.id}')">Assign</button>
+                </div>
+                <div style="display: flex; gap: 5px;">
+                  <button class="btn-table-action btn-complete" onclick="updateBooking('${b.id}', 'Completed')">Complete</button>
+                  <button class="btn-table-action" style="background: #ef4444; color: #fff;" onclick="deleteBooking('${b.id}')">Cancel</button>
+                </div>
+              </div>
+            `;
+          } else if (b.status === 'Assigned') {
+            actionsHtml = `
+              <div class="admin-actions" style="display: flex; gap: 5px;">
+                <button class="btn-table-action btn-complete" onclick="updateBooking('${b.id}', 'Completed')">Complete</button>
+                <button class="btn-table-action" style="background: #ef4444; color: #fff;" onclick="deleteBooking('${b.id}')">Cancel</button>
+              </div>
+            `;
+          } else {
+            actionsHtml = `<span style="color: #10b981; font-size: 0.85rem;"><i class="fas fa-check-circle"></i> Handled</span>`;
+          }
+
+          // Format date
+          const dateStr = new Date(b.createdAt).toLocaleDateString(undefined, {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+
+          tr.innerHTML = `
+            <td><code>${b.id.slice(-6)}</code></td>
+            <td><strong>${escapeHtml(b.name)}</strong></td>
+            <td><a href="tel:${b.phone}" style="color: var(--white);">${escapeHtml(b.phone)}</a></td>
+            <td><span style="font-weight: 500;">${b.service === 'Electrician' || b.service === 'Electrical' ? '⚡ ' : b.service === 'Plumbing' ? '🔧 ' : b.service === 'Carpentry' ? '🪚 ' : '🧹 '}${b.service}</span>${providerDetail}</td>
+            <td>${b.date}<br><small style="color: var(--gray-muted);">${b.slot}</small></td>
+            <td><small>${escapeHtml(b.address)}</small></td>
+            <td><span class="status-badge ${badgeClass}">${b.status}</span></td>
+            <td>${actionsHtml}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // Render Inquiries Table
+      function renderInquiries(contacts) {
+        const tbody = document.getElementById('inquiries-table-body');
+        tbody.innerHTML = '';
+
+        if (!contacts || contacts.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="no-records">No messages found in the database.</td></tr>`;
+          return;
+        }
+
+        contacts.slice().reverse().forEach(c => {
+          const tr = document.createElement('tr');
+          const dateStr = new Date(c.createdAt).toLocaleDateString(undefined, {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+
+          tr.innerHTML = `
+            <td><code>${c.id.slice(-6)}</code></td>
+            <td><strong>${escapeHtml(c.name)}</strong></td>
+            <td><a href="mailto:${c.email}" style="color: var(--orange-accent);">${escapeHtml(c.email)}</a></td>
+            <td><div style="max-width: 350px; font-size: 0.85rem;">${escapeHtml(c.message)}</div></td>
+            <td><small style="color: var(--gray-muted);">${dateStr}</small></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // Update counters in Dashboard
+      function updateStats(stats) {
+        document.getElementById('stat-pending-val').textContent = stats.pendingBookings || 0;
+        document.getElementById('stat-assigned-val').textContent = stats.assignedBookings || 0;
+        document.getElementById('stat-completed-val').textContent = stats.completedBookings || 0;
+      }
+
+      // Assign specific provider to booking
+      window.assignProvider = async function(bookingId) {
+        const select = document.getElementById(`prov-select-${bookingId}`);
+        if (!select) return;
+        const providerId = select.value;
+
+        try {
+          const res = await fetch(`/api/bookings/${bookingId}/assign`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ providerId })
+          });
+          const result = await res.json();
+          if (result.success) {
+            showToast(`Assigned provider successfully to booking!`);
+            await fetchAndRenderData();
+          } else {
+            showToast(result.error || 'Failed to assign provider.', true);
+          }
+        } catch (err) {
+          console.error(err);
+          showToast('Connection error.', true);
+        }
+      };
+
+      // Delete/Cancel booking
+      window.deleteBooking = async function(bookingId) {
+        if (!confirm("Are you sure you want to cancel this booking request?")) return;
+
+        try {
+          const res = await fetch(`/api/bookings/${bookingId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          const result = await res.json();
+          if (result.success) {
+            showToast(`Booking cancelled successfully.`);
+            await fetchAndRenderData();
+          } else {
+            showToast(result.error || 'Failed to cancel booking.', true);
+          }
+        } catch (err) {
+          console.error(err);
+          showToast('Connection error.', true);
+        }
+      };
+
+      // Expose updating status globally
+      window.updateBooking = async function(id, status) {
+        try {
+          const res = await fetch(`/api/bookings/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ status })
+          });
+          const result = await res.json();
+          if (result.success) {
+            showToast(`Booking request updated to: ${status}`);
+            await fetchAndRenderData();
+          } else {
+            showToast('Failed to update status.', true);
+          }
+        } catch (err) {
+          console.error(err);
+          showToast('Connection error.', true);
+        }
+      };
+
+      // HTML escaping helper to prevent XSS
+      function escapeHtml(str) {
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+    });
+  </script>
+</body>
+</html>

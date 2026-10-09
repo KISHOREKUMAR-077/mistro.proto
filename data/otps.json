@@ -1,0 +1,12 @@
+[
+  {
+    "id": "otp-1791527173250-826",
+    "phone": "919876543210",
+    "otpCode": "346916",
+    "expiresAt": "2026-10-09T06:36:13.250Z",
+    "purpose": "PHONE_VERIFICATION",
+    "verified": true,
+    "attempts": 0,
+    "createdAt": "2026-10-09T06:26:13.250Z"
+  }
+]

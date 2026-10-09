@@ -1,0 +1,267 @@
+[
+  {
+    "id": "usr-1791298182393-22",
+    "name": "Test User",
+    "email": "testuser2@example.com",
+    "salt": "42f485616310bfc6cd37046a52da7fdb",
+    "passwordHash": "7bad9ec4431b1ad152b20ac791ffcbfb47040da90950cb7d0c617e21edd6076d51a9c33a43a9e06349e9ca21b9391e14f9eeb4adeae6657a2072cbef77f030e5",
+    "role": "customer",
+    "createdAt": "2026-10-06T14:49:42.393Z"
+  },
+  {
+    "id": "usr-1791303940472-527",
+    "name": "Full Test User",
+    "email": "fulltest@example.com",
+    "salt": "d7205fccc7fbf502ee2b05a4c8b29081",
+    "passwordHash": "6235ad3d27c8d60558287d53d8898232bdc343da6236b3f1bb860bd45cf01982cd8ad3b4db6d4842441f8daadaba6744c33c15bde48e2c8ecd6bdea5cddbc226",
+    "role": "customer",
+    "createdAt": "2026-10-06T16:25:40.472Z"
+  },
+  {
+    "id": "usr-1791304124003-318",
+    "name": "Full Test User Updated",
+    "email": "testuser_215843@example.com",
+    "salt": "75fc34168352d16d647be39c8b066554",
+    "passwordHash": "0f979062ce1714f3624e01643536894b73bf83e22de293699b25f4d7e145710f5e267cb16cbb05231c962b3938f9bf21682c1a6791c3e748c429261ea993ff0c",
+    "role": "customer",
+    "createdAt": "2026-10-06T16:28:44.003Z",
+    "phone": "9876543210",
+    "address": "100 Tech Park, Chennai",
+    "updatedAt": "2026-10-06T16:28:44.046Z"
+  },
+  {
+    "id": "usr-1791304513584-134",
+    "name": "spidey",
+    "email": "peter77@gmail.com",
+    "salt": "aaf362b2eb52d16f1e57d382fe84c239",
+    "passwordHash": "28893cec3841486e3c9fec4321f80908b8f92c8cea704ba88b2f3f772125cba414921677bbb780c14523e46fd1f27374370c43b67ad11e970c57818700bc0010",
+    "role": "customer",
+    "createdAt": "2026-10-06T16:35:13.584Z"
+  },
+  {
+    "id": "usr-w-1791468981997-561",
+    "name": "Ramesh Kumar",
+    "email": "ramesh_194621@partner.com",
+    "phone": "9876543210",
+    "salt": "8193e48e84ff3f9a5c5992bf06bb2c1b",
+    "passwordHash": "b8126ea7b4f34b51d0bf5c46cb1be3f6f7ec1f4e759e73c4f2910716904e269776dd58db8f159a530b87b590cda90395c95d974f0f20b9a62a1f98591938c3f7",
+    "role": "worker",
+    "createdAt": "2026-10-08T14:16:21.997Z"
+  },
+  {
+    "id": "usr-w-1791468982039-961",
+    "name": "Suresh V",
+    "email": "suresh_194621@partner.com",
+    "phone": "9876543211",
+    "salt": "f17f498f028a18aba05935cf40d15ff7",
+    "passwordHash": "eed6d1f0be882906be5906027161bb8f21a1c4a58e7ba38451f34b9e54c4d445beb9514ac5a7a5971a687cb0f0164b94ed7f399ba53baefa1555377bd64db46f",
+    "role": "worker",
+    "createdAt": "2026-10-08T14:16:22.039Z"
+  },
+  {
+    "id": "usr-w-1791469203775-899",
+    "name": "Ramesh Kumar",
+    "email": "ramesh_195003@partner.com",
+    "phone": "9876543210",
+    "salt": "ac9e267c8a71b8e6d8fde6ec18cef3d0",
+    "passwordHash": "0a39145ed19e4a6ddcf53e53223b6c9564e291887cb867fae5ebfd23ca49966960299542d0b134cbfe5b38aa841578979d5e75afb107d488d478b5566af81f59",
+    "role": "worker",
+    "createdAt": "2026-10-08T14:20:03.775Z"
+  },
+  {
+    "id": "usr-w-1791469203814-976",
+    "name": "Suresh V",
+    "email": "suresh_195003@partner.com",
+    "phone": "9876543211",
+    "salt": "793c1f741ca0424f1a41e150f2a62a20",
+    "passwordHash": "70c171acf5c5a528260fe4096518f79c928d558c64d0bb653c62c390794f96cc6542ad1441f59dd6528421ef766144afb83f07ef050b38c39f5f124401a6a01c",
+    "role": "worker",
+    "createdAt": "2026-10-08T14:20:03.814Z"
+  },
+  {
+    "id": "usr-w-1791521939177-877",
+    "name": "Ramesh Kumar",
+    "email": "ramesh.electrician.723756574@mistro.com",
+    "phone": "9876543210",
+    "salt": "546331b86c1ffe8a0c144758263377b1",
+    "passwordHash": "fba9f66461ff7f9c6d8ac460fe3e3fd78c3dd2c244132d9e061ba2f18e5d8e1cfe6ec79fb5f10a1d9b1ef0d2c5126b25c0867417837aabc95d87741cc70d7e81",
+    "role": "worker",
+    "createdAt": "2026-10-09T04:58:59.178Z"
+  },
+  {
+    "id": "usr-w-1791521939246-879",
+    "name": "Suresh V",
+    "email": "suresh.electrician.929242441@mistro.com",
+    "phone": "9876543211",
+    "salt": "cf825bb3c7119fde3c0aef0e15eeed6f",
+    "passwordHash": "c58a53153b34d0e4f33937b73e94e22d0ae55c475e54c426145892ac3e500614a2070dfed9d5e7add9c1b4380dad6270a194e42cb1c1485dbbc5caf0313a5eb4",
+    "role": "worker",
+    "createdAt": "2026-10-09T04:58:59.246Z"
+  },
+  {
+    "id": "usr-w-1791522162417-231",
+    "name": "Ramesh Kumar",
+    "email": "ramesh.electrician.1852369550@mistro.com",
+    "phone": "9876543210",
+    "salt": "814acbdaa2a0e84c938d74e36d8bea52",
+    "passwordHash": "eb230c37ea942f2a9fcef88c3f0eb325e85704dc1426bfc30b42588ca3980cf394417a24cff7f4ea2d03233ddabffc924d5d6a770fe9e272a9da706be2a4105c",
+    "role": "worker",
+    "createdAt": "2026-10-09T05:02:42.417Z"
+  },
+  {
+    "id": "usr-w-1791522162459-120",
+    "name": "Suresh V",
+    "email": "suresh.electrician.429920138@mistro.com",
+    "phone": "9876543211",
+    "salt": "2654bca487e7de002006564de3d2af4e",
+    "passwordHash": "7ffe15a7b7544b7bddb0532c7ccc54974c96c049f4db6730b04697b2bcb8d4ab04da70016743c039f4661dd5cf68e0d76af20a752dc8edf05c61b302a4233be7",
+    "role": "worker",
+    "createdAt": "2026-10-09T05:02:42.459Z"
+  },
+  {
+    "id": "usr-w-1791522323470-769",
+    "name": "Ramesh Kumar",
+    "email": "ramesh.electrician.916618223@mistro.com",
+    "phone": "9876543210",
+    "salt": "cfbcd7596b154697af7408bc2807dd93",
+    "passwordHash": "5128a51e55b9c2376ecfb4e1d56370e0e50dc1a73cfd7e523674b9f6f89b174c6f2121b53ec8a8d22a0e02c0bf8d24267c17227a9a07818e739d7c0ef3df9a60",
+    "role": "worker",
+    "createdAt": "2026-10-09T05:05:23.470Z"
+  },
+  {
+    "id": "usr-w-1791522323511-502",
+    "name": "Suresh V",
+    "email": "suresh.electrician.75482296@mistro.com",
+    "phone": "9876543211",
+    "salt": "ede972334648ebaf8c2aa8b52baab50b",
+    "passwordHash": "b8a378cce36a2f86bc210ad7fe1d88fd74faa3b8b4a0eb5d356b9f0442a74226ce06383052096088115459b961effc990ab2d5a93cf59a6014f66138265efa15",
+    "role": "worker",
+    "createdAt": "2026-10-09T05:05:23.511Z"
+  },
+  {
+    "id": "usr-w-1791522458704-401",
+    "name": "spidey",
+    "email": "peter77777@gmail.com",
+    "phone": "6382631770",
+    "salt": "7d83aa5cc2b75bf0d3ac31e3b921880b",
+    "passwordHash": "8f5fb762352166bc30baed5ae9aad2d2175e1ec6e14acce425bcb0198acb93da4ddb1072054dc3304e9957301542e433ace2f6061ee0f9a09ce2f57ff79d3d1b",
+    "role": "worker",
+    "createdAt": "2026-10-09T05:07:38.704Z"
+  },
+  {
+    "id": "usr-1791522571165-773",
+    "name": "spidey",
+    "email": "durhayes4@gmail.com",
+    "salt": "d09b1a88bce0cef9919d4d1cb4c514e0",
+    "passwordHash": "3e72460c800c0648ec76e344cbadd482f24b00c561d04e0a26eb72d3e09d97631a0cdbaa944678767103d75fb0639dabe84fce960f5732acce9d1384eac2b16c",
+    "role": "customer",
+    "createdAt": "2026-10-09T05:09:31.165Z"
+  },
+  {
+    "id": "usr-w-1791522681868-766",
+    "name": "spidey",
+    "email": "peter777777@gmail.com",
+    "phone": "6382631770",
+    "salt": "15798d3fb5adf623f51fd841d3771b40",
+    "passwordHash": "175583b14c5c56d76db6e29d0908bba4c5efe718b9753cefe83f20412c16e6b5eff9103810daeec4b289713e4fc4e11f611914ebdb0d36ac6d24fa008aac5361",
+    "role": "worker",
+    "createdAt": "2026-10-09T05:11:21.868Z"
+  },
+  {
+    "id": "usr-w-1791523021025-246",
+    "name": "Kishore",
+    "email": "k44316021@gmail.com",
+    "phone": "06382631770",
+    "salt": "01e57c3da913fedbde479a606327b068",
+    "passwordHash": "d70367adb115843979ed3e8d721a4e9d079d51c110f672cd631f1088eb0d519f7f9d7eb5bfa3b73cfdbc4036c4ff08264648163bdc53a2454f300bf3a6908bd6",
+    "role": "worker",
+    "createdAt": "2026-10-09T05:17:01.025Z"
+  },
+  {
+    "id": "usr-1791523064196-177",
+    "name": "spidey",
+    "email": "dsvhjdsfj@gmail.com",
+    "salt": "ccdc649ff2bc60f5a0ba629a1e2b9238",
+    "passwordHash": "23049953a21f597212c43f836ffcafe6d37f2c96cf8eb21a7f9074ee22b1b111cf1f23ecf64b27eaa3bb9b247e07ff21f0ff7513ab94da0ac222b031730a29fd",
+    "role": "customer",
+    "createdAt": "2026-10-09T05:17:44.196Z"
+  },
+  {
+    "id": "usr-w-1791525107326-112",
+    "name": "Ramesh Kumar",
+    "email": "ramesh.electrician.770725018@mistro.com",
+    "phone": "9876543210",
+    "salt": "358bfdeba5054cef9f6fc7c454047bed",
+    "passwordHash": "d75358a43149cb2961a61b0c0cc6e8dffb03545c392cdb5c9e5fb6f59d9747cdb25a1cb1d2da9cc3370205bc90b8f11d96c631f416324c08be3adaf228134a29",
+    "role": "worker",
+    "createdAt": "2026-10-09T05:51:47.326Z"
+  },
+  {
+    "id": "usr-w-1791525107367-487",
+    "name": "Suresh V",
+    "email": "suresh.electrician.1967657023@mistro.com",
+    "phone": "9876543211",
+    "salt": "b0a8fc68a958f315dcfe3df1d9709c18",
+    "passwordHash": "0e681519326882beafe3b86993b21a23b2102767f6ce75dd2a881e3ab0d9b67cf2aaffde6d2a8a6ab83b0826fe7ab5a42e30a0db792bbdb5674305611ca9ad29",
+    "role": "worker",
+    "createdAt": "2026-10-09T05:51:47.367Z"
+  },
+  {
+    "id": "usr-w-1791525273883-525",
+    "name": "Kishore",
+    "email": "k44316vv021@gmail.com",
+    "phone": "06382631770",
+    "salt": "4d5de6e55e46cbb8eb5f5b7510486117",
+    "passwordHash": "c4770f2e4dc03beb64fac635c88ed26d6d331392075273cd5706eccad76a7411dfcd39af0bf03cf3b8f63fac6e1f3043ce1f10a1a3af7c6423d618e29ed13353",
+    "role": "worker",
+    "createdAt": "2026-10-09T05:54:33.883Z"
+  },
+  {
+    "id": "usr-w-1791526517114-622",
+    "name": "Ramesh Kumar",
+    "email": "ramesh.prod.2026746056@mistro.com",
+    "phone": "9876543210",
+    "salt": "ea5b30502136b432f77e4443586d8e60",
+    "passwordHash": "40a873e330ff00bc99102f9e0e10199e6970c28297a1684efaf5207c36001bcfbc0d28fbcf3409c60e0623eda7111ac32c7aa8e34409af1183034c5e83616398",
+    "role": "worker",
+    "createdAt": "2026-10-09T06:15:17.114Z"
+  },
+  {
+    "id": "usr-1791526517153-577",
+    "name": "Arun Kumar",
+    "email": "arun.prod.1387347281@mistro.com",
+    "salt": "9c4f6e5223069db19bb664f13bb9d76e",
+    "passwordHash": "0660513ffd3ab73b7fe14051a37b8e6e428fc88ab1b9f7b35cd44e2a71f4b20596729c85f95689fc18a7a732416a59c19cf2340af8abe2bc78bc4b703bc1c140",
+    "role": "customer",
+    "createdAt": "2026-10-09T06:15:17.153Z"
+  },
+  {
+    "id": "usr-w-1791527173311-10",
+    "name": "Ramesh Kumar",
+    "email": "ramesh.prod.1554543944@mistro.com",
+    "phone": "9876543210",
+    "salt": "58730d3f2e6c93379967829b5ba7c842",
+    "passwordHash": "da8329cce974885d4f092c2bf28d406d080b025b702c685157abd0f960f376c4ec11fdae1fb9b65d177982a5e865481e906714ade6171a7ca47619645918260e",
+    "role": "worker",
+    "createdAt": "2026-10-09T06:26:13.311Z"
+  },
+  {
+    "id": "usr-1791527173334-142",
+    "name": "Arun Kumar",
+    "email": "arun.prod.671165113@mistro.com",
+    "salt": "0b2f232e1f368cc234cc90f764da57e9",
+    "passwordHash": "957677d8034e55e09e15e1915fa67d6c18624f0d2c731977ded848f74247b5e2731ef9ec22129d72bb0ee743951e8b0d208bbe1dca42588c636accc86bc45c4a",
+    "role": "customer",
+    "createdAt": "2026-10-09T06:26:13.334Z"
+  },
+  {
+    "id": "usr-w-1791527429645-581",
+    "name": "Kishore",
+    "email": "k44vcx316021@gmail.com",
+    "phone": "06382631770",
+    "salt": "c4c05acdb717c26d9430316684cea64f",
+    "passwordHash": "ca8374d4cd05e846841c43f727f06f64a64ad1682fc10137e59a28e7f98a2f36e80c8a955fd8cce740a28db3fdb330b0712fa9799266b4317fb9684fa24a5ef9",
+    "role": "worker",
+    "createdAt": "2026-10-09T06:30:29.645Z"
+  }
+]

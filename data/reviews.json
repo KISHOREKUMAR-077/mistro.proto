@@ -1,0 +1,46 @@
+[
+  {
+    "id": "rev-1",
+    "userName": "Anand R",
+    "service": "Electrical",
+    "rating": 5,
+    "comment": "The electrician arrived in 20 minutes and fixed our main circuit breaker issue safely. Excellent service!",
+    "createdAt": "2026-09-15T10:30:00Z"
+  },
+  {
+    "id": "rev-2",
+    "userName": "Priya Sundar",
+    "service": "Plumbing",
+    "rating": 5,
+    "comment": "Fixed a persistent kitchen sink leak that two other local repairmen couldn't fix. Super professional!",
+    "createdAt": "2026-09-20T14:15:00Z"
+  },
+  {
+    "id": "rev-3",
+    "userName": "Vikram Seth",
+    "service": "Carpentry",
+    "rating": 4.8,
+    "comment": "Assembled our heavy modular wardrobe perfectly. Very careful with flooring and clean-up.",
+    "createdAt": "2026-09-28T16:45:00Z"
+  },
+  {
+    "id": "rev-072472",
+    "bookingId": "bk-07242162",
+    "userId": null,
+    "userName": "Anonymous Customer",
+    "rating": 5,
+    "comment": "Superb plumbing service! Arrived very quickly.",
+    "service": "Plumbing",
+    "createdAt": "2026-10-06T16:27:52.472Z"
+  },
+  {
+    "id": "rev-124112",
+    "bookingId": "bk-12405359",
+    "userId": "usr-1791304124003-318",
+    "userName": "Full Test User Updated",
+    "rating": 5,
+    "comment": "Outstanding service!",
+    "service": "Electrical",
+    "createdAt": "2026-10-06T16:28:44.112Z"
+  }
+]

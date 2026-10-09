@@ -1,0 +1,18 @@
+[
+  {
+    "id": "pay-1791527173382-1",
+    "bookingId": "bk-17334667",
+    "customerId": "usr-1791527173334-142",
+    "amount": 299,
+    "currency": "INR",
+    "provider": "Razorpay",
+    "gatewayOrderId": "order_1791527173382_555",
+    "status": "PAID",
+    "receiptNo": "rcpt_bk-17334667_173382",
+    "createdAt": "2026-10-09T06:26:13.382Z",
+    "updatedAt": "2026-10-09T06:26:13.395Z",
+    "gatewayPaymentId": "pay_mock_12345",
+    "gatewaySignature": "mock_signature",
+    "verifiedAt": "2026-10-09T06:26:13.395Z"
+  }
+]

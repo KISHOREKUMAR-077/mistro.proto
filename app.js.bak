@@ -1,0 +1,459 @@
+/* ==========================================================================
+   MISTRO PREMIUM STARTUP WEBSITE SCRIPT
+   ========================================================================== */
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize all features
+  initThemeToggle();
+  initCursorGlow();
+  initHeroParticles();
+  initTypingTagline();
+  initStatsCounter();
+  initAppPreview();
+  initChatbot();
+  initVideoModal();
+  initTestimonialSlider();
+  initMarketChart();
+  initScrollAnimations();
+});
+
+/* --- 1. DARK/LIGHT THEME SWITCHER --- */
+function initThemeToggle() {
+  const toggle = document.getElementById('theme-toggle-input');
+  
+  // Check local storage or system preference
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.body.classList.add('dark-mode');
+    if (toggle) toggle.checked = true;
+  } else {
+    document.body.classList.remove('dark-mode');
+    if (toggle) toggle.checked = false;
+  }
+  
+  if (toggle) {
+    toggle.addEventListener('change', () => {
+      if (toggle.checked) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('theme', 'light');
+      }
+      
+      // Update Chart Colors if rendered
+      updateChartColors();
+    });
+  }
+}
+
+/* --- 2. CURSOR GLOW EFFECT --- */
+function initCursorGlow() {
+  const glow = document.getElementById('cursor-glow');
+  if (!glow) return;
+  
+  window.addEventListener('mousemove', (e) => {
+    glow.style.left = e.clientX + 'px';
+    glow.style.top = e.clientY + 'px';
+  });
+}
+
+/* --- 3. DYNAMIC HERO PARTICLES --- */
+function initHeroParticles() {
+  const container = document.getElementById('hero-particles');
+  if (!container) return;
+  
+  const particleCount = 25;
+  for (let i = 0; i < particleCount; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    
+    // Random sizes, positions, and durations
+    const size = Math.random() * 8 + 4;
+    particle.style.width = size + 'px';
+    particle.style.height = size + 'px';
+    particle.style.left = Math.random() * 100 + 'vw';
+    particle.style.animationDuration = (Math.random() * 12 + 8) + 's';
+    particle.style.animationDelay = (Math.random() * 8) + 's';
+    
+    container.appendChild(particle);
+  }
+}
+
+/* --- 4. ANIMATED TYPING TAGLINE --- */
+function initTypingTagline() {
+  const taglineEl = document.getElementById('typing-text');
+  if (!taglineEl) return;
+  
+  const text = taglineEl.getAttribute('data-tagline') || "Service On. Stress Gone.";
+  let index = 0;
+  let isDeleting = false;
+  
+  function type() {
+    if (!isDeleting && index <= text.length) {
+      taglineEl.textContent = text.substring(0, index);
+      index++;
+      setTimeout(type, 100);
+    } else if (isDeleting && index >= 0) {
+      taglineEl.textContent = text.substring(0, index);
+      index--;
+      setTimeout(type, 50);
+    } else {
+      isDeleting = !isDeleting;
+      setTimeout(type, isDeleting ? 2000 : 800);
+    }
+  }
+  
+  // Start the typing loop
+  setTimeout(type, 1500);
+}
+
+/* --- 5. LIVE STATS COUNTER --- */
+function initStatsCounter() {
+  const statsSection = document.getElementById('statistics');
+  if (!statsSection) return;
+  
+  const counters = statsSection.querySelectorAll('.stat-number');
+  let activated = false;
+  
+  const startCounting = () => {
+    counters.forEach(counter => {
+      const target = parseInt(counter.getAttribute('data-target'));
+      const suffix = counter.getAttribute('data-suffix') || "";
+      let count = 0;
+      const speed = target / 50; // Speed factor
+      
+      const updateCount = () => {
+        if (count < target) {
+          count = Math.min(target, Math.ceil(count + speed));
+          counter.textContent = count + suffix;
+          setTimeout(updateCount, 25);
+        } else {
+          counter.textContent = target + suffix;
+        }
+      };
+      updateCount();
+    });
+  };
+  
+  // Intersection Observer to trigger on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !activated) {
+        startCounting();
+        activated = true;
+      }
+    });
+  }, { threshold: 0.3 });
+  
+  observer.observe(statsSection);
+}
+
+/* --- 6. INTERACTIVE APP PREVIEW MOCKUP --- */
+function initAppPreview() {
+  const buttons = document.querySelectorAll('.screen-select-btn');
+  const screens = document.querySelectorAll('.screen-content');
+  
+  if (buttons.length === 0) return;
+  
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Remove active class from buttons
+      buttons.forEach(b => b.classList.remove('active'));
+      // Add active to current button
+      btn.classList.add('active');
+      
+      // Toggle screens
+      const targetScreen = btn.getAttribute('data-screen');
+      screens.forEach(scr => {
+        scr.classList.remove('active');
+        if (scr.id === `screen-${targetScreen}`) {
+          scr.classList.add('active');
+        }
+      });
+    });
+  });
+  
+  // Handle interaction inside app screen buttons to switch screen automatically
+  window.appSwitchScreen = function(screenName) {
+    const matchBtn = document.querySelector(`.screen-select-btn[data-screen="${screenName}"]`);
+    if (matchBtn) matchBtn.click();
+  };
+}
+
+/* --- 7. FLOATING AI CHATBOT ASSISTANT --- */
+function initChatbot() {
+  const widget = document.getElementById('chatbot-widget');
+  const toggleBtn = document.getElementById('chatbot-toggle');
+  const closeBtn = document.getElementById('chatbot-close');
+  const chips = document.querySelectorAll('.chat-chip');
+  const chatMessages = document.getElementById('chatbot-messages');
+  const chatInput = document.getElementById('chatbot-input');
+  const sendBtn = document.getElementById('chatbot-send');
+  
+  if (!widget) return;
+  
+  // Toggle chatbot box
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      widget.classList.toggle('active');
+    });
+  }
+  
+  // Chatbot conversation logic
+  const botResponses = {
+    'electrician': 'I found 5 highly-rated electricians nearby. Recommended: Kumar (4.8★, 200m away). Ready to book?',
+    'emergency': '🚨 Emergency mode activated. Nearby technicians have been alerted. You will receive a call in 2 minutes.',
+    'recommendations': 'Based on your search history, we recommend scheduling an AC checkup before the peak summer season!',
+    'guidance': 'To book a service:\n1. Choose your service category\n2. Select a trusted professional\n3. Pick a time slot\n4. Confirm and relax!',
+    'suggestions': 'Our top-rated professionals nearby are: Kumar (Electrical), Priya (Plumbing), and Suresh (Carpentry).'
+  };
+  
+  function addMessage(text, sender) {
+    const bubble = document.createElement('div');
+    bubble.className = `chat-bubble ${sender}`;
+    bubble.innerText = text;
+    chatMessages.appendChild(bubble);
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+  
+  // Chip Click handler
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const topic = chip.getAttribute('data-topic');
+      const userText = chip.innerText;
+      
+      addMessage(userText, 'user');
+      
+      // Delay bot response slightly
+      setTimeout(() => {
+        const reply = botResponses[topic] || "How can I help you today?";
+        addMessage(reply, 'bot');
+      }, 600);
+    });
+  });
+  
+  // Input text send handler
+  function handleUserInput() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+    
+    addMessage(text, 'user');
+    chatInput.value = '';
+    
+    setTimeout(() => {
+      const lowercaseText = text.toLowerCase();
+      let reply = "Thanks for your message! Our AI Assistant is searching... To book a live service, you can use our Quick Booking panel.";
+      
+      if (lowercaseText.includes('electrician') || lowercaseText.includes('power') || lowercaseText.includes('light')) {
+        reply = botResponses['electrician'];
+      } else if (lowercaseText.includes('emergency') || lowercaseText.includes('help') || lowercaseText.includes('urgent')) {
+        reply = botResponses['emergency'];
+      } else if (lowercaseText.includes('plumber') || lowercaseText.includes('water') || lowercaseText.includes('leak')) {
+        reply = "I found 3 nearby plumbers. Recommended: Priya (4.9★, 350m away).";
+      } else if (lowercaseText.includes('price') || lowercaseText.includes('cost') || lowercaseText.includes('cheap')) {
+        reply = "MISTRO offers transparent, upfront pricing starting at just ₹149. No hidden middlemen charges!";
+      }
+      
+      addMessage(reply, 'bot');
+    }, 700);
+  }
+  
+  if (sendBtn && chatInput) {
+    sendBtn.addEventListener('click', handleUserInput);
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleUserInput();
+    });
+  }
+}
+
+/* --- 8. AI PROMO VIDEO MODAL --- */
+function initVideoModal() {
+  const openBtn = document.getElementById('play-promo-video');
+  const overlay = document.getElementById('video-modal-overlay');
+  const closeBtn = document.getElementById('video-modal-close');
+  const video = document.getElementById('promo-video-element');
+  
+  if (!overlay || !openBtn) return;
+  
+  openBtn.addEventListener('click', () => {
+    overlay.classList.add('active');
+    if (video) {
+      video.play().catch(err => console.log("Auto-play blocked or error: ", err));
+    }
+  });
+  
+  const closeModal = () => {
+    overlay.classList.remove('active');
+    if (video) {
+      video.pause();
+    }
+  };
+  
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal();
+  });
+  
+  // Escape key closes modal
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('active')) {
+      closeModal();
+    }
+  });
+}
+
+/* --- 9. TESTIMONIALS SLIDER --- */
+function initTestimonialSlider() {
+  const track = document.getElementById('testimonial-track');
+  const slides = document.querySelectorAll('.testimonial-slide');
+  const dotsContainer = document.getElementById('slider-dots');
+  
+  if (!track || slides.length === 0) return;
+  
+  let currentIndex = 0;
+  const slideCount = slides.length;
+  
+  // Create dots
+  dotsContainer.innerHTML = '';
+  slides.forEach((_, idx) => {
+    const dot = document.createElement('div');
+    dot.className = `slider-dot ${idx === 0 ? 'active' : ''}`;
+    dot.addEventListener('click', () => {
+      goToSlide(idx);
+    });
+    dotsContainer.appendChild(dot);
+  });
+  
+  const dots = dotsContainer.querySelectorAll('.slider-dot');
+  
+  function goToSlide(idx) {
+    currentIndex = idx;
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+    
+    // Update dots
+    dots.forEach((dot, dIdx) => {
+      dot.classList.toggle('active', dIdx === currentIndex);
+    });
+  }
+  
+  // Auto-slide every 5 seconds
+  let slideInterval = setInterval(() => {
+    let nextIdx = (currentIndex + 1) % slideCount;
+    goToSlide(nextIdx);
+  }, 5000);
+  
+  // Reset timer on manual dot interaction
+  dotsContainer.addEventListener('click', () => {
+    clearInterval(slideInterval);
+    slideInterval = setInterval(() => {
+      let nextIdx = (currentIndex + 1) % slideCount;
+      goToSlide(nextIdx);
+    }, 5000);
+  });
+}
+
+/* --- 10. MARKET OPPORTUNITY DYNAMIC CHART --- */
+let marketChartInstance = null;
+function initMarketChart() {
+  const ctx = document.getElementById('marketChart');
+  if (!ctx) return;
+  
+  const getColors = () => {
+    const isDark = document.body.classList.contains('dark-mode');
+    return {
+      textColor: isDark ? '#ffffff' : '#000000',
+      gridColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)',
+      organizedColor: '#F97316',
+      unorganizedColor: isDark ? '#38bdf8' : '#1E3A8A'
+    };
+  };
+  
+  const colors = getColors();
+  
+  marketChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Urban Homes (Cr)', 'Skilled Workers (Cr)', 'Total Market (₹Billion)'],
+      datasets: [
+        {
+          label: 'Organized Segment (Digital)',
+          data: [2, 0.4, 40],
+          backgroundColor: colors.organizedColor,
+          borderRadius: 8,
+        },
+        {
+          label: 'Unorganized Segment (Local Call / Physical)',
+          data: [8, 1.6, 460],
+          backgroundColor: colors.unorganizedColor,
+          borderRadius: 8,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            color: colors.textColor,
+            font: { family: 'Plus Jakarta Sans', weight: 600 }
+          }
+        },
+        tooltip: {
+          padding: 12,
+          cornerRadius: 8
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: colors.gridColor },
+          ticks: { color: colors.textColor, font: { family: 'Plus Jakarta Sans' } }
+        },
+        y: {
+          grid: { color: colors.gridColor },
+          ticks: { color: colors.textColor, font: { family: 'Plus Jakarta Sans' } }
+        }
+      }
+    }
+  });
+}
+
+function updateChartColors() {
+  if (!marketChartInstance) return;
+  
+  const isDark = document.body.classList.contains('dark-mode');
+  const textColor = isDark ? '#ffffff' : '#000000';
+  const gridColor = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)';
+  
+  marketChartInstance.options.plugins.legend.labels.color = textColor;
+  marketChartInstance.options.scales.x.ticks.color = textColor;
+  marketChartInstance.options.scales.y.ticks.color = textColor;
+  marketChartInstance.options.scales.x.grid.color = gridColor;
+  marketChartInstance.options.scales.y.grid.color = gridColor;
+  marketChartInstance.update();
+}
+
+/* --- 11. SCROLL REVEAL ANIMATIONS --- */
+function initScrollAnimations() {
+  const reveals = document.querySelectorAll('.reveal');
+  
+  const checkReveal = () => {
+    const windowHeight = window.innerHeight;
+    reveals.forEach(reveal => {
+      const elementTop = reveal.getBoundingClientRect().top;
+      const elementVisible = 150; // Trigger distance
+      
+      if (elementTop < windowHeight - elementVisible) {
+        reveal.classList.add('active');
+      }
+    });
+  };
+  
+  // Run on scroll and on load
+  window.addEventListener('scroll', checkReveal);
+  checkReveal(); // Trigger once on load
+}
