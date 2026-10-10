@@ -871,7 +871,7 @@ app.use((req, res) => {
 });
 
 // Start Express server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`==========================================================`);
   console.log(`MISTRO Full-Stack Application is running on port ${PORT}`);
   console.log(`Local Access: http://localhost:${PORT}`);

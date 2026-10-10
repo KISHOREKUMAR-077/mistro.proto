@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MISTRO - India's Smart Home Service Marketplace</title>
+  <meta name="description" content="Connecting customers with trusted electricians, plumbers, carpenters, and cleaning professionals through one intelligent platform. Service On. Stress Gone.">
+  <meta name="keywords" content="MISTRO, home services, India, electrician, plumber, carpenter, cleaning, startup">
+  
+  <!-- Favicon Logo -->
+  <link rel="icon" type="image/png" href="/assets/mistro%20logo-KpMQB-pZ.png">
+  
+  <!-- CDNs for Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+      fetch('/api/log-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: message,
+          source: source,
+          lineno: lineno,
+          colno: colno,
+          stack: error ? error.stack : ''
+        })
+      }).catch(err => console.error('Failed to log error:', err));
+      return false;
+    };
+    window.addEventListener('unhandledrejection', function(event) {
+      fetch('/api/log-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: 'Unhandled Promise Rejection: ' + event.reason,
+          source: '',
+          lineno: 0,
+          colno: 0,
+          stack: event.reason && event.reason.stack ? event.reason.stack : String(event.reason)
+        })
+      }).catch(err => console.error('Failed to log error:', err));
+    });
+  </script>
+  <script type="module" crossorigin src="/assets/index-_XGEoEun.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DngsW-be.css">
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- CDNs for Lenis and GSAP (Loaded globally so React can read them from window) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+  
+</body>
+</html>

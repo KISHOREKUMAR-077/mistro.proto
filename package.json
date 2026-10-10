@@ -9,6 +9,9 @@
     "start": "node server.js",
     "server": "node server.js"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "keywords": [
     "home-services",
     "startup",
@@ -17,15 +20,11 @@
   ],
   "author": "Mithilesh M, Sanjay S, Kishore Kumar S",
   "license": "ISC",
-  "devDependencies": {
+  "dependencies": {
+    "@react-google-maps/api": "^2.19.3",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
-    "typescript": "^5.2.2",
-    "vite": "^5.3.1"
-  },
-  "dependencies": {
-    "@react-google-maps/api": "^2.19.3",
     "concurrently": "^8.2.2",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -34,6 +33,8 @@
     "razorpay": "^2.9.8",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.23.1"
+    "react-router-dom": "^6.23.1",
+    "typescript": "^5.2.2",
+    "vite": "^5.3.1"
   }
 }
