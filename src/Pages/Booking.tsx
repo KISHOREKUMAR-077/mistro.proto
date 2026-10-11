@@ -55,6 +55,42 @@ const Booking: React.FC = () => {
   const [activeBooking, setActiveBooking] = useState<any | null>(null);
   const [toastMessage, setToastMessage] = useState<{ text: string; isError: boolean } | null>(null);
 
+  // Payment states (Swiggy/Zomato model)
+  const [paymentMethod, setPaymentMethod] = useState<'online' | 'cash'>('online');
+  const [isProcessingPayment, setIsProcessingPayment] = useState<boolean>(false);
+  const [paymentCompleted, setPaymentCompleted] = useState<boolean>(false);
+
+  // Review & Rating states (Swiggy/Zomato model)
+  const [reviewRating, setReviewRating] = useState<number>(5);
+  const [hoverRating, setHoverRating] = useState<number>(0);
+  const [reviewComment, setReviewComment] = useState<string>('');
+  const [selectedPraiseTags, setSelectedPraiseTags] = useState<string[]>([]);
+  const [isSubmittingReview, setIsSubmittingReview] = useState<boolean>(false);
+  const [reviewSuccess, setReviewSuccess] = useState<boolean>(false);
+
+  // Check and restore active booking from localStorage on load
+  useEffect(() => {
+    const savedBookingId = localStorage.getItem('mistro_active_booking_id');
+    if (savedBookingId && !createdBookingId) {
+      fetch(`/api/bookings/${savedBookingId}/track`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.booking) {
+            setCreatedBookingId(savedBookingId);
+            setSubmitSuccess(true);
+            setActiveBooking(data.booking);
+            if (data.booking.paymentStatus === 'Paid') {
+              setPaymentCompleted(true);
+            }
+            if (data.booking.hasReviewed) {
+              setReviewSuccess(true);
+            }
+          }
+        })
+        .catch(err => console.error('Active booking restore error:', err));
+    }
+  }, []);
+
   // Pre-select service from URL query parameter on load & pre-fill logged in user
   useEffect(() => {
     const params = new URLSearchParams(searchLocation.search);
@@ -199,6 +235,9 @@ const Booking: React.FC = () => {
         setSubmitSuccess(true);
         setCreatedBookingId(result.booking.id);
         setActiveBooking(result.booking);
+        setPaymentCompleted(false);
+        setReviewSuccess(false);
+        localStorage.setItem('mistro_active_booking_id', result.booking.id);
         sessionStorage.removeItem('mistro_selected_location');
       } else {
         showToast(result.error || 'Failed to confirm booking. Please try again.', true);
@@ -212,10 +251,94 @@ const Booking: React.FC = () => {
   };
 
   const handleResetForNewWorker = () => {
+    localStorage.removeItem('mistro_active_booking_id');
     setSubmitSuccess(false);
     setCreatedBookingId(null);
     setActiveBooking(null);
     setSelectedWorker(null);
+    setPaymentCompleted(false);
+    setReviewSuccess(false);
+  };
+
+  // Swiggy/Zomato Model: Process Payment once Service is Completed
+  const handleProcessPayment = async () => {
+    if (!createdBookingId && !activeBooking?.id) return;
+    const bId = createdBookingId || activeBooking.id;
+    setIsProcessingPayment(true);
+
+    try {
+      const srv = (activeBooking.service || '').toLowerCase();
+      const base = srv.includes('clean') ? 599 : srv.includes('elect') ? 299 : srv.includes('plumb') ? 349 : 399;
+      const totalAmount = Math.round((base + 49) * 1.18);
+
+      const res = await fetch(`/api/bookings/${bId}/payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentMethod: paymentMethod === 'online' ? 'Razorpay/UPI' : 'Cash on Service',
+          amount: totalAmount
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        showToast('✓ Payment recorded successfully! Please leave a review.');
+        setPaymentCompleted(true);
+        setActiveBooking((prev: any) => ({ ...prev, paymentStatus: 'Paid' }));
+      } else {
+        showToast(data.error || 'Payment failed. Please retry.', true);
+      }
+    } catch (err) {
+      showToast('Network error processing payment.', true);
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
+  // Swiggy/Zomato Model: Feedback Praises
+  const handleTogglePraiseTag = (tag: string) => {
+    setSelectedPraiseTags(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    );
+  };
+
+  // Swiggy/Zomato Model: Submit Review & Rating
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!createdBookingId && !activeBooking?.id) return;
+    const bId = createdBookingId || activeBooking.id;
+    setIsSubmittingReview(true);
+
+    try {
+      const fullComment = selectedPraiseTags.length > 0
+        ? `[${selectedPraiseTags.join(', ')}] ${reviewComment}`.trim()
+        : reviewComment || "Great service, highly satisfied!";
+
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookingId: bId,
+          rating: reviewRating,
+          comment: fullComment,
+          service: activeBooking.service,
+          userName: name || activeBooking.name || 'Valued Customer'
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        showToast('⭐ Thank you! Your review has been saved.');
+        setReviewSuccess(true);
+        setActiveBooking((prev: any) => ({ ...prev, hasReviewed: true, rating: reviewRating }));
+      } else {
+        showToast(data.error || 'Failed to submit review.', true);
+      }
+    } catch (err) {
+      showToast('Network error submitting review.', true);
+    } finally {
+      setIsSubmittingReview(false);
+    }
   };
 
   return (
@@ -460,8 +583,341 @@ const Booking: React.FC = () => {
                   })}
                 </div>
 
-                <div>
-                  <button onClick={() => navigate('/')} className="btn-accent" style={{ border: 'none', padding: '12px 30px', borderRadius: '30px', cursor: 'pointer', fontSize: '15px' }}>
+                {/* LIVE DIRECTIONS & WORKER CONTACT WHEN ACTIVE (On the Way / Arrived / In Progress) */}
+                {['Accepted', 'Assigned', 'On the Way', 'Arrived', 'In Progress'].includes(activeBooking.status) && (
+                  <div style={{
+                    background: 'rgba(30, 58, 138, 0.25)',
+                    border: '1px solid rgba(96, 165, 250, 0.3)',
+                    padding: '20px',
+                    borderRadius: '12px',
+                    marginBottom: '30px',
+                    textAlign: 'left',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '15px'
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '13px', color: '#93c5fd', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span>📍</span>
+                        {activeBooking.status === 'On the Way'
+                          ? 'Worker is currently en route to your address'
+                          : activeBooking.status === 'Arrived'
+                          ? 'Worker has arrived outside your location'
+                          : activeBooking.status === 'In Progress'
+                          ? 'Worker is actively executing service'
+                          : 'Worker is preparing for arrival'}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#cbd5e1', marginTop: '4px' }}>
+                        Delivery Address: {activeBooking.address}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                      <a
+                        href={`tel:${activeBooking.assignedProvider?.phone || '9876543210'}`}
+                        style={{
+                          background: '#22c55e',
+                          color: '#fff',
+                          padding: '10px 18px',
+                          borderRadius: '25px',
+                          textDecoration: 'none',
+                          fontSize: '13px',
+                          fontWeight: 600,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        📞 Call Worker
+                      </a>
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activeBooking.address)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.1)',
+                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                          color: '#fff',
+                          padding: '10px 18px',
+                          borderRadius: '25px',
+                          textDecoration: 'none',
+                          fontSize: '13px',
+                          fontWeight: 500,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        🗺️ View Map
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* SWIGGY / ZOMATO MODEL: STEP 1 - PAYMENT ONCE COMPLETED */}
+                {activeBooking.status === 'Completed' && (activeBooking.paymentStatus !== 'Paid' && !paymentCompleted) && (
+                  <div style={{
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid rgba(249, 115, 22, 0.3)',
+                    padding: '25px',
+                    borderRadius: '16px',
+                    marginBottom: '30px',
+                    textAlign: 'left'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
+                      <h3 style={{ margin: 0, fontSize: '18px', color: '#fff', fontWeight: 700 }}>
+                        💳 Service Completed: Pay Bill
+                      </h3>
+                      <span style={{ background: '#ef4444', color: '#fff', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '10px' }}>
+                        PAYMENT PENDING
+                      </span>
+                    </div>
+
+                    {/* ITEMIZED BILL BREAKDOWN */}
+                    {(() => {
+                      const srv = (activeBooking.service || '').toLowerCase();
+                      const base = srv.includes('clean') ? 599 : srv.includes('elect') ? 299 : srv.includes('plumb') ? 349 : 399;
+                      const platform = 49;
+                      const gst = Math.round((base + platform) * 0.18);
+                      const total = base + platform + gst;
+
+                      return (
+                        <div>
+                          <div style={{ background: 'rgba(0, 0, 0, 0.25)', padding: '15px', borderRadius: '10px', marginBottom: '20px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#cbd5e1', marginBottom: '6px' }}>
+                              <span>{activeBooking.service} Standard Service Charge</span>
+                              <span>₹{base}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#cbd5e1', marginBottom: '6px' }}>
+                              <span>MISTRO Safety & Platform Guarantee</span>
+                              <span>₹{platform}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#94a3b8', marginBottom: '10px' }}>
+                              <span>Applicable GST (18%)</span>
+                              <span>₹{gst}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: 700, color: '#F97316', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                              <span>Total Due</span>
+                              <span>₹{total}</span>
+                            </div>
+                          </div>
+
+                          <div style={{ marginBottom: '20px' }}>
+                            <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '10px', fontWeight: 600 }}>
+                              Choose Payment Method:
+                            </label>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                              <div
+                                onClick={() => setPaymentMethod('online')}
+                                style={{
+                                  border: paymentMethod === 'online' ? '2px solid #F97316' : '1px solid rgba(255,255,255,0.1)',
+                                  background: paymentMethod === 'online' ? 'rgba(249, 115, 22, 0.12)' : 'rgba(255,255,255,0.02)',
+                                  padding: '12px',
+                                  borderRadius: '10px',
+                                  cursor: 'pointer',
+                                  textAlign: 'center'
+                                }}
+                              >
+                                <div style={{ fontSize: '18px', marginBottom: '4px' }}>💳</div>
+                                <div style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>Online / UPI</div>
+                                <small style={{ fontSize: '11px', color: '#94a3b8' }}>Razorpay Secure</small>
+                              </div>
+
+                              <div
+                                onClick={() => setPaymentMethod('cash')}
+                                style={{
+                                  border: paymentMethod === 'cash' ? '2px solid #F97316' : '1px solid rgba(255,255,255,0.1)',
+                                  background: paymentMethod === 'cash' ? 'rgba(249, 115, 22, 0.12)' : 'rgba(255,255,255,0.02)',
+                                  padding: '12px',
+                                  borderRadius: '10px',
+                                  cursor: 'pointer',
+                                  textAlign: 'center'
+                                }}
+                              >
+                                <div style={{ fontSize: '18px', marginBottom: '4px' }}>💵</div>
+                                <div style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>Pay Cash</div>
+                                <small style={{ fontSize: '11px', color: '#94a3b8' }}>Pay Technician Direct</small>
+                              </div>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={handleProcessPayment}
+                            disabled={isProcessingPayment}
+                            className="btn-accent"
+                            style={{
+                              width: '100%',
+                              padding: '14px',
+                              borderRadius: '30px',
+                              border: 'none',
+                              fontSize: '16px',
+                              fontWeight: 700,
+                              cursor: isProcessingPayment ? 'not-allowed' : 'pointer',
+                              boxShadow: '0 4px 15px rgba(249, 115, 22, 0.4)'
+                            }}
+                          >
+                            {isProcessingPayment ? 'Processing Payment...' : `Confirm & Pay ₹${total}`}
+                          </button>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+
+                {/* SWIGGY / ZOMATO MODEL: STEP 2 - 5-STAR RATING & REVIEW CARD */}
+                {activeBooking.status === 'Completed' && (activeBooking.paymentStatus === 'Paid' || paymentCompleted) && (!activeBooking.hasReviewed && !reviewSuccess) && (
+                  <div style={{
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid rgba(34, 197, 94, 0.3)',
+                    padding: '25px',
+                    borderRadius: '16px',
+                    marginBottom: '30px',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ display: 'inline-block', background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', padding: '4px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, marginBottom: '10px' }}>
+                      ✓ PAYMENT VERIFIED
+                    </div>
+                    <h3 style={{ margin: '0 0 6px', fontSize: '20px', color: '#fff', fontWeight: 700 }}>
+                      How was your service with {activeBooking.selectedProviderName || 'your professional'}?
+                    </h3>
+                    <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0 0 20px' }}>
+                      Your honest review rewards good work and helps other homeowners.
+                    </p>
+
+                    {/* INTERACTIVE 5 STARS */}
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', fontSize: '36px', cursor: 'pointer', marginBottom: '20px' }}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span
+                          key={star}
+                          onClick={() => setReviewRating(star)}
+                          onMouseEnter={() => setHoverRating(star)}
+                          onMouseLeave={() => setHoverRating(0)}
+                          style={{
+                            color: (hoverRating || reviewRating) >= star ? '#fbbf24' : '#475569',
+                            transform: (hoverRating || reviewRating) >= star ? 'scale(1.15)' : 'scale(1)',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          ★
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* COMPLIMENT PRAISE PILLS */}
+                    <div style={{ marginBottom: '20px' }}>
+                      <div style={{ fontSize: '12px', color: '#cbd5e1', marginBottom: '8px' }}>What went well?</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px' }}>
+                        {[
+                          '⚡ On-time Arrival',
+                          '🔧 Expert Work',
+                          '🧼 Clean & Tidy',
+                          '🤝 Polite & Professional',
+                          '💰 Fair Pricing',
+                          '💯 Safe Work'
+                        ].map(tag => {
+                          const isSel = selectedPraiseTags.includes(tag);
+                          return (
+                            <button
+                              key={tag}
+                              type="button"
+                              onClick={() => handleTogglePraiseTag(tag)}
+                              style={{
+                                border: isSel ? '1px solid #F97316' : '1px solid rgba(255,255,255,0.1)',
+                                background: isSel ? 'rgba(249, 115, 22, 0.2)' : 'rgba(255,255,255,0.03)',
+                                color: isSel ? '#F97316' : '#cbd5e1',
+                                padding: '6px 12px',
+                                borderRadius: '20px',
+                                fontSize: '12px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                            >
+                              {tag}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* COMMENT TEXTAREA */}
+                    <form onSubmit={handleSubmitReview}>
+                      <textarea
+                        rows={3}
+                        value={reviewComment}
+                        onChange={e => setReviewComment(e.target.value)}
+                        placeholder={`Tell us what you liked about ${activeBooking.selectedProviderName || 'the service'}...`}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '10px',
+                          border: '1px solid rgba(255,255,255,0.15)',
+                          background: 'rgba(255,255,255,0.05)',
+                          color: '#fff',
+                          fontSize: '14px',
+                          outline: 'none',
+                          boxSizing: 'border-box',
+                          marginBottom: '15px'
+                        }}
+                      />
+
+                      <button
+                        type="submit"
+                        disabled={isSubmittingReview}
+                        className="btn-accent"
+                        style={{
+                          width: '100%',
+                          padding: '14px',
+                          borderRadius: '30px',
+                          border: 'none',
+                          fontSize: '15px',
+                          fontWeight: 700,
+                          cursor: isSubmittingReview ? 'not-allowed' : 'pointer',
+                          background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                          boxShadow: '0 4px 15px rgba(34, 197, 94, 0.4)'
+                        }}
+                      >
+                        {isSubmittingReview ? 'Submitting Review...' : '⭐ Submit Review & Finish'}
+                      </button>
+                    </form>
+                  </div>
+                )}
+
+                {/* SWIGGY / ZOMATO MODEL: STEP 3 - REVIEW COMPLETED STATE */}
+                {activeBooking.status === 'Completed' && (activeBooking.hasReviewed || reviewSuccess) && (
+                  <div style={{
+                    background: 'rgba(34, 197, 94, 0.08)',
+                    border: '1px solid rgba(34, 197, 94, 0.3)',
+                    padding: '25px',
+                    borderRadius: '16px',
+                    marginBottom: '30px',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ fontSize: '36px', marginBottom: '8px' }}>🎉</div>
+                    <h3 style={{ margin: '0 0 6px', fontSize: '20px', color: '#4ade80', fontWeight: 700 }}>
+                      Thank you for your Feedback!
+                    </h3>
+                    <p style={{ color: '#cbd5e1', fontSize: '14px', margin: 0 }}>
+                      Your review has been verified and credited to {activeBooking.selectedProviderName || 'your professional'}'s profile.
+                    </p>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button
+                    onClick={handleResetForNewWorker}
+                    className="btn-secondary"
+                    style={{ padding: '12px 26px', borderRadius: '30px', cursor: 'pointer', fontSize: '14px' }}
+                  >
+                    + Book Another Service
+                  </button>
+
+                  <button
+                    onClick={() => navigate('/')}
+                    className="btn-accent"
+                    style={{ border: 'none', padding: '12px 30px', borderRadius: '30px', cursor: 'pointer', fontSize: '14px' }}
+                  >
                     Go to Homepage
                   </button>
                 </div>

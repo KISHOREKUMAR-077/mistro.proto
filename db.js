@@ -553,6 +553,17 @@ async function addReview({ bookingId, userId, userName, rating, comment, service
 
   reviews.push(newReview);
   await writeJsonFile(REVIEWS_FILE, reviews);
+
+  if (bookingId) {
+    const bookings = await getBookings();
+    const bIndex = bookings.findIndex(b => b.id === bookingId);
+    if (bIndex !== -1) {
+      bookings[bIndex].hasReviewed = true;
+      bookings[bIndex].rating = Number(rating);
+      await writeJsonFile(BOOKINGS_FILE, bookings);
+    }
+  }
+
   return newReview;
 }
 

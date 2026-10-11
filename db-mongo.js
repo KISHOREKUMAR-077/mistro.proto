@@ -753,6 +753,24 @@ async function addReview({ bookingId, userId, userName, rating, comment, service
     service: service || "General Home Service"
   });
   await rev.save();
+
+  if (bookingId) {
+    const booking = await Booking.findOneAndUpdate(
+      { id: bookingId },
+      { $set: { hasReviewed: true, rating: Number(rating) } },
+      { new: true }
+    );
+    if (booking && (booking.selectedProviderId || booking.assignedProvider)) {
+      const provId = booking.selectedProviderId || (booking.assignedProvider ? booking.assignedProvider.id : null);
+      if (provId) {
+        await Provider.updateOne(
+          { $or: [{ id: provId }, { userId: provId }] },
+          { $inc: { totalJobs: 1 } }
+        );
+      }
+    }
+  }
+
   return rev.toObject();
 }
 

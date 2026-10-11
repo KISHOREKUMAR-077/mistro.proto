@@ -1178,20 +1178,20 @@ interface ActiveJobCardProps {
 const ActiveJobCard: React.FC<ActiveJobCardProps> = ({ job, actionLoading, onUpdateStatus }) => {
   const isLoading = actionLoading === job.id;
 
-  let nextActionLabel = 'ON THE WAY';
+  let nextActionLabel = '🚗 ON THE WAY (START DRIVING)';
   let nextStatus = 'On the Way';
 
   if (job.status === 'Accepted' || job.status === 'Assigned') {
-    nextActionLabel = 'ON THE WAY';
+    nextActionLabel = '🚗 ON THE WAY (START DRIVING)';
     nextStatus = 'On the Way';
   } else if (job.status === 'On the Way') {
-    nextActionLabel = 'ARRIVED';
+    nextActionLabel = '📍 I HAVE ARRIVED AT CUSTOMER LOCATION';
     nextStatus = 'Arrived';
   } else if (job.status === 'Arrived') {
-    nextActionLabel = 'START SERVICE';
+    nextActionLabel = '⚡ START SERVICE';
     nextStatus = 'In Progress';
   } else if (job.status === 'In Progress') {
-    nextActionLabel = 'COMPLETE JOB';
+    nextActionLabel = '🎉 COMPLETE JOB & REQUEST PAYMENT';
     nextStatus = 'Completed';
   }
 
@@ -1202,20 +1202,42 @@ const ActiveJobCard: React.FC<ActiveJobCardProps> = ({ job, actionLoading, onUpd
       border: '1px solid rgba(96, 165, 250, 0.3)',
       background: 'rgba(30, 58, 138, 0.15)'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px', flexWrap: 'wrap', gap: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{
-            background: '#3b82f6',
+            background: job.status === 'In Progress' ? '#22c55e' : job.status === 'On the Way' ? '#F97316' : '#3b82f6',
             color: '#fff',
             fontSize: '11px',
             fontWeight: 700,
             padding: '3px 10px',
             borderRadius: '12px'
           }}>
-            STATUS: {job.status.toUpperCase()}
+            CURRENT STAGE: {job.status.toUpperCase()}
           </span>
           <span style={{ fontSize: '13px', color: '#94a3b8' }}>ID: #{job.id.slice(-6)}</span>
         </div>
+
+        {/* GOOGLE MAPS NAVIGATION BUTTON */}
+        <a
+          href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(job.address)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+            color: '#fff',
+            padding: '8px 16px',
+            borderRadius: '20px',
+            fontSize: '12px',
+            fontWeight: 600,
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            boxShadow: '0 3px 10px rgba(37, 99, 235, 0.3)'
+          }}
+        >
+          📍 Open Navigation Map
+        </a>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px', marginBottom: '20px' }}>
@@ -1223,13 +1245,13 @@ const ActiveJobCard: React.FC<ActiveJobCardProps> = ({ job, actionLoading, onUpd
           <div style={{ fontSize: '12px', color: '#94a3b8' }}>CUSTOMER & PHONE</div>
           <div style={{ fontSize: '16px', fontWeight: 700, color: '#fff', marginTop: '2px' }}>{job.name}</div>
           <div style={{ fontSize: '13px', color: '#60a5fa', marginTop: '2px' }}>
-            <a href={`tel:${job.phone}`} style={{ color: '#60a5fa', textDecoration: 'none' }}>📞 {job.phone}</a>
+            <a href={`tel:${job.phone}`} style={{ color: '#60a5fa', textDecoration: 'none' }}>📞 Call: {job.phone}</a>
           </div>
         </div>
 
         <div>
           <div style={{ fontSize: '12px', color: '#94a3b8' }}>SERVICE</div>
-          <div style={{ fontSize: '15px', fontWeight: 600, color: '#fff', marginTop: '2px' }}>{job.service}</div>
+          <div style={{ fontSize: '15px', fontWeight: 600, color: '#F97316', marginTop: '2px' }}>{job.service}</div>
         </div>
 
         <div>
@@ -1239,7 +1261,7 @@ const ActiveJobCard: React.FC<ActiveJobCardProps> = ({ job, actionLoading, onUpd
         </div>
 
         <div>
-          <div style={{ fontSize: '12px', color: '#94a3b8' }}>LOCATION</div>
+          <div style={{ fontSize: '12px', color: '#94a3b8' }}>DELIVERY ADDRESS</div>
           <div style={{ fontSize: '13px', color: '#cbd5e1', marginTop: '2px' }}>{job.address}</div>
         </div>
       </div>
@@ -1251,19 +1273,21 @@ const ActiveJobCard: React.FC<ActiveJobCardProps> = ({ job, actionLoading, onUpd
           disabled={isLoading}
           style={{
             flex: 1,
-            padding: '13px 20px',
+            padding: '14px 20px',
             borderRadius: '25px',
-            fontSize: '14px',
+            fontSize: '15px',
             fontWeight: 700,
             border: 'none',
-            background: job.status === 'In Progress' ? '#22c55e' : '#F97316',
+            background: job.status === 'In Progress'
+              ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
+              : 'linear-gradient(135deg, #F97316 0%, #ea580c 100%)',
             color: '#fff',
             cursor: isLoading ? 'not-allowed' : 'pointer',
             boxShadow: '0 4px 15px rgba(249, 115, 22, 0.3)',
             opacity: isLoading ? 0.7 : 1
           }}
         >
-          {isLoading ? 'Updating Status...' : `[ ${nextActionLabel} ]`}
+          {isLoading ? 'Updating Status...' : nextActionLabel}
         </button>
       </div>
     </div>
