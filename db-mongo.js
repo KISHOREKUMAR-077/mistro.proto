@@ -1,4 +1,8 @@
 const mongoose = require('mongoose');
+const dns = require('dns');
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (e) {}
 const crypto = require('crypto');
 const dbJson = require('./db');
 
@@ -46,11 +50,11 @@ async function initDb() {
   
   try {
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 2000
+      serverSelectionTimeoutMS: 8000
     });
     isConnected = true;
     console.log('==========================================================');
-    console.log(`MongoDB Connected successfully to ${uri}`);
+    console.log(`MongoDB Connected successfully to ${uri.replace(/:[^:]*@/, ':****@')}`);
     console.log('==========================================================');
 
     // Seed default providers if empty
