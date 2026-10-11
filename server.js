@@ -166,6 +166,26 @@ app.post('/api/worker/login', async (req, res) => {
   }
 });
 
+// Worker 1-Click Demo Login (Ramesh Kumar, Karthik Raja, Murugan, Lakshmi, Suresh)
+app.post('/api/worker/demo-login', async (req, res) => {
+  try {
+    const { workerId, email, name } = req.body || {};
+    const result = await db.demoWorkerLogin({ workerId, email, name });
+    const token = await db.createSession(result.user);
+
+    res.json({
+      success: true,
+      message: `Logged in as ${result.provider.name}`,
+      user: result.user,
+      provider: result.provider,
+      token
+    });
+  } catch (err) {
+    console.error("Demo worker login error:", err.message);
+    res.status(400).json({ success: false, error: err.message || "Failed to log in demo worker" });
+  }
+});
+
 // Get Worker Profile & Provider Details
 app.get('/api/worker/profile', requireWorker, async (req, res) => {
   try {

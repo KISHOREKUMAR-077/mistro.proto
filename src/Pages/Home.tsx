@@ -620,8 +620,25 @@ const Home: React.FC = () => {
           <li><a href="#why-choose" className="nav-link-item">Why MISTRO</a></li>
           <li><a href="#contact" className="nav-link-item">Contact</a></li>
         </ul>
-        
         <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            onClick={() => navigate('/portal')}
+            style={{
+              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(249, 115, 22, 0.2))',
+              border: '1px solid rgba(249, 115, 22, 0.5)',
+              color: '#fff',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <span>🔀</span> Switch Role
+          </button>
           <button
             onClick={() => navigate('/worker/register')}
             style={{
@@ -692,6 +709,20 @@ const Home: React.FC = () => {
             <p className="hero-subheadline">Connecting customers with trusted electricians, plumbers, carpenters, and cleaning professionals through one intelligent platform.</p>
             <div className="hero-buttons">
               <button className="btn-accent" id="hero-btn-book" onClick={() => handleBookNow()}>Book a Service</button>
+              <button
+                className="btn-secondary"
+                onClick={() => navigate('/portal')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  borderColor: 'rgba(249, 115, 22, 0.4)',
+                  color: '#fff'
+                }}
+              >
+                <span>🔀</span> Role Switcher
+              </button>
               <button className="btn-secondary play-trigger" id="hero-btn-demo" data-video="/demo video.mp4">
                 <i className="fas fa-play-circle"></i> Watch Demo
               </button>

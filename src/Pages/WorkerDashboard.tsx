@@ -424,6 +424,26 @@ const WorkerDashboard: React.FC = () => {
 
         {/* Right Header Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          {/* Switch Role Button */}
+          <button
+            onClick={() => navigate('/portal')}
+            style={{
+              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(37, 99, 235, 0.18))',
+              border: '1px solid rgba(59, 130, 246, 0.4)',
+              color: '#93c5fd',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <span>🔀</span> Switch Role
+          </button>
+
           {/* Availability Toggle */}
           <button
             onClick={handleToggleAvailability}
@@ -1076,14 +1096,15 @@ const RequestCard: React.FC<RequestCardProps> = ({ req, actionLoading, onAccept,
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px', flexWrap: 'wrap', gap: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{
-            background: req.urgency === 'Emergency' ? '#ef4444' : '#F97316',
+            background: req.selectedProviderName ? '#3b82f6' : (req.urgency === 'Emergency' ? '#ef4444' : '#F97316'),
             color: '#fff',
             fontSize: '11px',
             fontWeight: 700,
             padding: '3px 10px',
-            borderRadius: '12px'
+            borderRadius: '12px',
+            letterSpacing: '0.4px'
           }}>
-            {req.urgency === 'Emergency' ? '🚨 EMERGENCY REQUEST' : '🔔 NEW BOOKING REQUEST'}
+            {req.selectedProviderName ? `🎯 DIRECT REQUEST FOR ${req.selectedProviderName.toUpperCase()}` : (req.urgency === 'Emergency' ? '🚨 EMERGENCY REQUEST' : '🔔 NEW BOOKING REQUEST')}
           </span>
           <span style={{ fontSize: '13px', color: '#94a3b8' }}>ID: #{req.bookingId.slice(-6)}</span>
         </div>

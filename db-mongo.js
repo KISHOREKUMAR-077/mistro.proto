@@ -87,8 +87,10 @@ async function initDb() {
       }
     }
 
+    // Ensure demo worker accounts are provisioned and linked
+    await ensureDemoWorkers();
+
   } catch (err) {
-    isConnected = false;
     console.log('==========================================================');
     console.log('MongoDB server offline or not configured.');
     console.log('Fallback: Using file-backed JSON storage engine seamlessly.');
@@ -371,6 +373,188 @@ async function getBookingTrackingStatus(id) {
    WORKER / PARTNER SYSTEM OPERATIONS
    ========================================================== */
 
+const DEMO_WORKERS = [
+  {
+    id: "prov-101",
+    userId: "usr-w-prov-101",
+    name: "Ramesh Kumar",
+    email: "ramesh@mistro.com",
+    service: "Electrical",
+    phone: "9876543210",
+    rating: 4.9,
+    totalJobs: 142,
+    badge: "Master Electrician",
+    specialization: "Residential Wiring & Emergency Repairs",
+    experience: 5,
+    serviceArea: "Chennai Central & South",
+    bio: "Certified master electrician with 5+ years of experience specializing in home wiring, fuse box repair, and smart lighting installation."
+  },
+  {
+    id: "prov-102",
+    userId: "usr-w-prov-102",
+    name: "Suresh V",
+    email: "suresh@mistro.com",
+    service: "Electrical",
+    phone: "9876543211",
+    rating: 4.8,
+    totalJobs: 98,
+    badge: "Wiring Specialist",
+    specialization: "Electrical Fixtures & Inverter Repairs",
+    experience: 4,
+    serviceArea: "Chennai West & North",
+    bio: "Reliable electrical technician experienced in inverter installation, panel boards, and complete house safety inspection."
+  },
+  {
+    id: "prov-201",
+    userId: "usr-w-prov-201",
+    name: "Karthik Raja",
+    email: "karthik@mistro.com",
+    service: "Plumbing",
+    phone: "9876543220",
+    rating: 4.9,
+    totalJobs: 185,
+    badge: "Senior Plumber",
+    specialization: "Pipe Leakage & Sanitary Installation",
+    experience: 6,
+    serviceArea: "Chennai All Zones",
+    bio: "Senior plumber with 6 years of expertise in high-pressure leak detection, tap replacement, and bathroom renovation plumbing."
+  },
+  {
+    id: "prov-301",
+    userId: "usr-w-prov-301",
+    name: "Murugan S",
+    email: "murugan@mistro.com",
+    service: "Carpentry",
+    phone: "9876543230",
+    rating: 4.95,
+    totalJobs: 210,
+    badge: "Custom Woodcraft",
+    specialization: "Modular Furniture & Door Lock Fixes",
+    experience: 8,
+    serviceArea: "Chennai Central",
+    bio: "Master carpenter specializing in custom wooden furniture creation, door hinge/lock replacement, and modular wardrobe repairs."
+  },
+  {
+    id: "prov-401",
+    userId: "usr-w-prov-401",
+    name: "Lakshmi Deep Clean",
+    email: "lakshmi@mistro.com",
+    service: "Cleaning",
+    phone: "9876543240",
+    rating: 4.85,
+    totalJobs: 160,
+    badge: "Sanitation Specialist",
+    specialization: "Full Home & Kitchen Deep Sanitization",
+    experience: 5,
+    serviceArea: "Chennai Metro Area",
+    bio: "Professional home hygiene specialist team using eco-friendly hospital grade disinfectants for complete kitchen and bathroom deep cleaning."
+  }
+];
+
+async function ensureDemoWorkers() {
+  if (!checkMongo()) return dbJson.ensureDemoWorkers();
+
+  try {
+    for (const w of DEMO_WORKERS) {
+      // 1. Ensure User account exists
+      let user = await User.findOne({ $or: [{ email: w.email }, { id: w.userId }] });
+      if (!user) {
+        const { salt, hash } = hashPassword("worker123");
+        user = new User({
+          id: w.userId,
+          name: w.name,
+          email: w.email,
+          phone: w.phone,
+          salt,
+          passwordHash: hash,
+          role: "worker"
+        });
+        await user.save();
+      } else {
+        if (user.role !== 'worker') {
+          user.role = 'worker';
+          await user.save();
+        }
+      }
+
+      // 2. Ensure Provider profile exists and links to userId
+      let provider = await Provider.findOne({ $or: [{ id: w.id }, { email: w.email }, { name: w.name }] });
+      if (!provider) {
+        provider = new Provider({
+          id: w.id,
+          userId: w.userId,
+          name: w.name,
+          email: w.email,
+          phone: w.phone,
+          service: w.service,
+          specialization: w.specialization,
+          experience: w.experience,
+          serviceArea: w.serviceArea,
+          rating: w.rating,
+          totalJobs: w.totalJobs,
+          availability: "Available",
+          status: "Available",
+          badge: w.badge,
+          bio: w.bio
+        });
+        await provider.save();
+      } else {
+        provider.userId = w.userId;
+        provider.email = w.email;
+        provider.availability = "Available";
+        provider.status = "Available";
+        await provider.save();
+      }
+    }
+  } catch (err) {
+    console.error("Error ensuring demo workers:", err.message);
+  }
+}
+
+async function demoWorkerLogin({ workerId, email, name } = {}) {
+  if (!checkMongo()) return dbJson.demoWorkerLogin({ workerId, email, name });
+
+  await ensureDemoWorkers();
+
+  let query = {};
+  if (workerId) {
+    query.$or = [{ id: workerId }, { userId: workerId }];
+  } else if (email) {
+    query.email = email.trim().toLowerCase();
+  } else if (name) {
+    query.name = new RegExp(`^${name.trim()}$`, 'i');
+  } else {
+    query.id = "prov-101"; // Default to Ramesh Kumar
+  }
+
+  let provider = await Provider.findOne(query);
+  if (!provider) {
+    provider = await Provider.findOne({ service: /electrical/i }) || await Provider.findOne();
+  }
+  if (!provider) throw new Error("Worker profile not found");
+
+  let user = await User.findOne({ $or: [{ id: provider.userId }, { email: provider.email }] });
+  if (!user) {
+    const { salt, hash } = hashPassword("worker123");
+    user = new User({
+      id: provider.userId || ("usr-w-" + provider.id),
+      name: provider.name,
+      email: provider.email || `${provider.id}@mistro.com`,
+      phone: provider.phone || "",
+      salt,
+      passwordHash: hash,
+      role: "worker"
+    });
+    await user.save();
+  }
+
+  const userObj = user.toObject();
+  delete userObj.salt;
+  delete userObj.passwordHash;
+
+  return { user: userObj, provider: provider.toObject() };
+}
+
 async function createWorkerAccount({ name, email, phone, password, service, specialization, experience, serviceArea, bio, profilePhoto }) {
   if (!checkMongo()) return dbJson.createWorkerAccount({ name, email, phone, password, service, specialization, experience, serviceArea, bio, profilePhoto });
 
@@ -497,25 +681,43 @@ async function getWorkerIncomingRequests(userId) {
     return [];
   }
 
-  const workerService = provider.service.toLowerCase();
+  const workerService = (provider.service || "").toLowerCase();
 
   const query = {
-    $or: [{ status: 'Pending' }, { status: 'Searching' }],
-    assignedProvider: null,
+    status: { $in: ['Pending', 'Searching'] },
+    $or: [
+      { assignedProvider: null },
+      { 'assignedProvider.id': { $exists: false } },
+      { 'assignedProvider.id': null }
+    ],
     rejectedBy: { $nin: [userId, provider.id] }
   };
 
   const bookings = await Booking.find(query).lean();
 
   const matchingBookings = bookings.filter(b => {
+    // 1. Service category match
     const bService = (b.service || "").toLowerCase();
     const isServiceMatch = bService.includes(workerService) || workerService.includes(bService);
     if (!isServiceMatch) return false;
 
-    if (b.selectedProviderId) {
-      const matches = b.selectedProviderId === provider.id || b.selectedProviderId === provider.userId || b.selectedProviderId === userId;
-      if (!matches) return false;
+    // 2. Strict Targeted Worker Matching:
+    // If the customer specifically requested a worker by ID or Name:
+    const isTargeted = !!(b.selectedProviderId || b.selectedProviderName);
+    if (isTargeted) {
+      const idMatch = b.selectedProviderId && (
+        b.selectedProviderId === provider.id ||
+        b.selectedProviderId === provider.userId ||
+        b.selectedProviderId === userId
+      );
+      const nameMatch = b.selectedProviderName && provider.name && (
+        b.selectedProviderName.trim().toLowerCase() === provider.name.trim().toLowerCase()
+      );
+      // ONLY the requested worker gets this booking request!
+      return idMatch || nameMatch;
     }
+
+    // If customer did not request a specific worker (general broadcast for this service):
     return true;
   });
 
@@ -565,14 +767,23 @@ async function acceptBookingByWorker(bookingId, userId) {
   const booking = await Booking.findOne({ id: bookingId });
   if (!booking) throw new Error("Booking request not found");
 
-  if (booking.selectedProviderId) {
-    const isTarget = booking.selectedProviderId === provider.id || booking.selectedProviderId === provider.userId || booking.selectedProviderId === userId;
-    if (!isTarget) {
-      throw new Error("Access denied. This booking request was sent to another professional.");
+  // Strict targeted worker authorization:
+  const isTargeted = !!(booking.selectedProviderId || booking.selectedProviderName);
+  if (isTargeted) {
+    const idMatch = booking.selectedProviderId && (
+      booking.selectedProviderId === provider.id ||
+      booking.selectedProviderId === provider.userId ||
+      booking.selectedProviderId === userId
+    );
+    const nameMatch = booking.selectedProviderName && provider.name && (
+      booking.selectedProviderName.trim().toLowerCase() === provider.name.trim().toLowerCase()
+    );
+    if (!idMatch && !nameMatch) {
+      throw new Error(`Access denied. This booking request was specifically addressed to ${booking.selectedProviderName || 'another professional'}.`);
     }
   }
 
-  if (booking.assignedProvider) {
+  if (booking.assignedProvider && booking.assignedProvider.id) {
     throw new Error("Request no longer available. Another professional has already accepted it.");
   }
 
@@ -634,11 +845,18 @@ async function updateWorkerJobStatus(bookingId, userId, newStatus) {
 
   const provider = await getProviderByUserId(userId);
   const pId = provider ? provider.id : userId;
+  const pName = provider ? provider.name : null;
 
   const booking = await Booking.findOne({ id: bookingId });
   if (!booking) throw new Error("Booking not found");
 
-  if (!booking.assignedProvider || (booking.assignedProvider.userId !== userId && booking.assignedProvider.id !== pId)) {
+  const isAssignedToThisWorker = booking.assignedProvider && (
+    booking.assignedProvider.userId === userId ||
+    booking.assignedProvider.id === pId ||
+    (pName && booking.assignedProvider.name?.toLowerCase() === pName.toLowerCase())
+  );
+
+  if (!isAssignedToThisWorker) {
     throw new Error("Unauthorized to update this booking");
   }
 
@@ -661,13 +879,17 @@ async function getWorkerJobs(userId) {
 
   const provider = await getProviderByUserId(userId);
   const pId = provider ? provider.id : userId;
+  const pName = provider ? provider.name : null;
 
-  const allBookings = await Booking.find({
-    $or: [
-      { 'assignedProvider.userId': userId },
-      { 'assignedProvider.id': pId }
-    ]
-  }).lean();
+  const queryOr = [
+    { 'assignedProvider.userId': userId },
+    { 'assignedProvider.id': pId }
+  ];
+  if (pName) {
+    queryOr.push({ 'assignedProvider.name': pName });
+  }
+
+  const allBookings = await Booking.find({ $or: queryOr }).lean();
 
   const activeJobs = allBookings.filter(b => ['Accepted', 'Assigned', 'On the Way', 'Arrived', 'In Progress'].includes(b.status));
   const completedJobs = allBookings.filter(b => b.status === 'Completed');
@@ -720,12 +942,20 @@ async function getProviders() {
 async function getProvidersByCategory(category) {
   if (!checkMongo()) return dbJson.getProvidersByCategory(category);
 
-  if (!category) return await Provider.find({ availability: 'Available' }).lean();
+  const availabilityFilter = {
+    $or: [
+      { availability: 'Available' },
+      { status: 'Available' },
+      { availability: { $exists: false } }
+    ]
+  };
+
+  if (!category) return await Provider.find(availabilityFilter).lean();
 
   const regex = new RegExp(category, 'i');
   const providers = await Provider.find({
     service: regex,
-    availability: 'Available'
+    ...availabilityFilter
   }).sort({ rating: -1, totalJobs: -1 }).lean();
 
   return providers;
@@ -842,5 +1072,7 @@ module.exports = {
   rejectBookingByWorker,
   updateWorkerJobStatus,
   getWorkerJobs,
-  getWorkerDashboardData
+  getWorkerDashboardData,
+  ensureDemoWorkers,
+  demoWorkerLogin
 };

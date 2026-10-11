@@ -781,6 +781,185 @@ function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
   return Math.round((R * c) * 10) / 10;
 }
 
+const DEMO_WORKERS = [
+  {
+    id: "prov-101",
+    userId: "usr-w-prov-101",
+    name: "Ramesh Kumar",
+    email: "ramesh@mistro.com",
+    service: "Electrical",
+    phone: "9876543210",
+    rating: 4.9,
+    totalJobs: 142,
+    badge: "Master Electrician",
+    specialization: "Residential Wiring & Emergency Repairs",
+    experience: 5,
+    serviceArea: "Chennai Central & South",
+    bio: "Certified master electrician with 5+ years of experience specializing in home wiring, fuse box repair, and smart lighting installation."
+  },
+  {
+    id: "prov-102",
+    userId: "usr-w-prov-102",
+    name: "Suresh V",
+    email: "suresh@mistro.com",
+    service: "Electrical",
+    phone: "9876543211",
+    rating: 4.8,
+    totalJobs: 98,
+    badge: "Wiring Specialist",
+    specialization: "Electrical Fixtures & Inverter Repairs",
+    experience: 4,
+    serviceArea: "Chennai West & North",
+    bio: "Reliable electrical technician experienced in inverter installation, panel boards, and complete house safety inspection."
+  },
+  {
+    id: "prov-201",
+    userId: "usr-w-prov-201",
+    name: "Karthik Raja",
+    email: "karthik@mistro.com",
+    service: "Plumbing",
+    phone: "9876543220",
+    rating: 4.9,
+    totalJobs: 185,
+    badge: "Senior Plumber",
+    specialization: "Pipe Leakage & Sanitary Installation",
+    experience: 6,
+    serviceArea: "Chennai All Zones",
+    bio: "Senior plumber with 6 years of expertise in high-pressure leak detection, tap replacement, and bathroom renovation plumbing."
+  },
+  {
+    id: "prov-301",
+    userId: "usr-w-prov-301",
+    name: "Murugan S",
+    email: "murugan@mistro.com",
+    service: "Carpentry",
+    phone: "9876543230",
+    rating: 4.95,
+    totalJobs: 210,
+    badge: "Custom Woodcraft",
+    specialization: "Modular Furniture & Door Lock Fixes",
+    experience: 8,
+    serviceArea: "Chennai Central",
+    bio: "Master carpenter specializing in custom wooden furniture creation, door hinge/lock replacement, and modular wardrobe repairs."
+  },
+  {
+    id: "prov-401",
+    userId: "usr-w-prov-401",
+    name: "Lakshmi Deep Clean",
+    email: "lakshmi@mistro.com",
+    service: "Cleaning",
+    phone: "9876543240",
+    rating: 4.85,
+    totalJobs: 160,
+    badge: "Sanitation Specialist",
+    specialization: "Full Home & Kitchen Deep Sanitization",
+    experience: 5,
+    serviceArea: "Chennai Metro Area",
+    bio: "Professional home hygiene specialist team using eco-friendly hospital grade disinfectants for complete kitchen and bathroom deep cleaning."
+  }
+];
+
+async function ensureDemoWorkers() {
+  try {
+    const users = await getUsers();
+    const providers = await getProviders();
+    let usersUpdated = false;
+    let providersUpdated = false;
+
+    for (const w of DEMO_WORKERS) {
+      let uIdx = users.findIndex(u => u.email === w.email || u.id === w.userId);
+      if (uIdx === -1) {
+        const { salt, hash } = hashPassword("worker123");
+        users.push({
+          id: w.userId,
+          name: w.name,
+          email: w.email,
+          phone: w.phone,
+          salt,
+          passwordHash: hash,
+          role: "worker",
+          createdAt: new Date().toISOString()
+        });
+        usersUpdated = true;
+      }
+
+      let pIdx = providers.findIndex(p => p.id === w.id || p.email === w.email || p.name === w.name);
+      if (pIdx === -1) {
+        providers.push({
+          id: w.id,
+          userId: w.userId,
+          name: w.name,
+          email: w.email,
+          phone: w.phone,
+          service: w.service,
+          specialization: w.specialization,
+          experience: w.experience,
+          serviceArea: w.serviceArea,
+          rating: w.rating,
+          totalJobs: w.totalJobs,
+          availability: "Available",
+          status: "Available",
+          badge: w.badge,
+          bio: w.bio,
+          createdAt: new Date().toISOString()
+        });
+        providersUpdated = true;
+      } else {
+        providers[pIdx].userId = w.userId;
+        providers[pIdx].email = w.email;
+        providers[pIdx].availability = "Available";
+        providers[pIdx].status = "Available";
+        providersUpdated = true;
+      }
+    }
+
+    if (usersUpdated) await writeJsonFile(USERS_FILE, users);
+    if (providersUpdated) await writeJsonFile(PROVIDERS_FILE, providers);
+  } catch (err) {
+    console.error("Error ensuring demo workers in json:", err.message);
+  }
+}
+
+async function demoWorkerLogin({ workerId, email, name } = {}) {
+  await ensureDemoWorkers();
+  const providers = await getProviders();
+  const users = await getUsers();
+
+  let provider = null;
+  if (workerId) {
+    provider = providers.find(p => p.id === workerId || p.userId === workerId);
+  } else if (email) {
+    provider = providers.find(p => p.email && p.email.toLowerCase() === email.trim().toLowerCase());
+  } else if (name) {
+    provider = providers.find(p => p.name && p.name.toLowerCase() === name.trim().toLowerCase());
+  } else {
+    provider = providers.find(p => p.id === "prov-101") || providers[0];
+  }
+
+  if (!provider) provider = providers[0];
+  if (!provider) throw new Error("Worker profile not found");
+
+  let user = users.find(u => u.id === provider.userId || u.email === provider.email);
+  if (!user) {
+    const { salt, hash } = hashPassword("worker123");
+    user = {
+      id: provider.userId || ("usr-w-" + provider.id),
+      name: provider.name,
+      email: provider.email || `${provider.id}@mistro.com`,
+      phone: provider.phone || "",
+      salt,
+      passwordHash: hash,
+      role: "worker",
+      createdAt: new Date().toISOString()
+    };
+    users.push(user);
+    await writeJsonFile(USERS_FILE, users);
+  }
+
+  const { salt: _, passwordHash: __, ...userProfile } = user;
+  return { user: userProfile, provider };
+}
+
 async function createWorkerAccount({ name, email, phone, password, service, specialization, experience, serviceArea, bio, profilePhoto }) {
   const existing = await findUserByEmail(email);
   if (existing) {
@@ -949,9 +1128,17 @@ async function getWorkerIncomingRequests(userId) {
     }
 
     // 5. DIRECT WORKER SELECTION MATCH: If customer selected a specific worker, only show to that worker!
-    if (b.selectedProviderId) {
-      const matchesProviderId = b.selectedProviderId === provider.id || b.selectedProviderId === provider.userId || b.selectedProviderId === userId;
-      if (!matchesProviderId) {
+    const isTargeted = !!(b.selectedProviderId || b.selectedProviderName);
+    if (isTargeted) {
+      const idMatch = b.selectedProviderId && (
+        b.selectedProviderId === provider.id ||
+        b.selectedProviderId === provider.userId ||
+        b.selectedProviderId === userId
+      );
+      const nameMatch = b.selectedProviderName && provider.name && (
+        b.selectedProviderName.trim().toLowerCase() === provider.name.trim().toLowerCase()
+      );
+      if (!idMatch && !nameMatch) {
         return false;
       }
     }
@@ -1014,10 +1201,18 @@ async function acceptBookingByWorker(bookingId, userId) {
   const booking = bookings[index];
 
   // SECURITY CHECK: If targeted to a specific worker, prevent other workers from accepting
-  if (booking.selectedProviderId) {
-    const isTarget = booking.selectedProviderId === provider.id || booking.selectedProviderId === provider.userId || booking.selectedProviderId === userId;
-    if (!isTarget) {
-      throw new Error("Access denied. This booking request was sent to another professional.");
+  const isTargeted = !!(booking.selectedProviderId || booking.selectedProviderName);
+  if (isTargeted) {
+    const idMatch = booking.selectedProviderId && (
+      booking.selectedProviderId === provider.id ||
+      booking.selectedProviderId === provider.userId ||
+      booking.selectedProviderId === userId
+    );
+    const nameMatch = booking.selectedProviderName && provider.name && (
+      booking.selectedProviderName.trim().toLowerCase() === provider.name.trim().toLowerCase()
+    );
+    if (!idMatch && !nameMatch) {
+      throw new Error(`Access denied. This booking request was specifically sent to ${booking.selectedProviderName || 'another professional'}.`);
     }
   }
 
@@ -1288,7 +1483,9 @@ module.exports = {
   rejectBookingByWorker,
   updateWorkerJobStatus,
   getWorkerJobs,
-  getWorkerDashboardData
+  getWorkerDashboardData,
+  ensureDemoWorkers,
+  demoWorkerLogin
 };
 
 

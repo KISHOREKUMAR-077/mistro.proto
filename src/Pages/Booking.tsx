@@ -377,8 +377,11 @@ const Booking: React.FC = () => {
           <img src="/mistro logo.png" className="nav-logo-img" alt="MISTRO Logo" />
           <span className="nav-logo-text">MISTRO</span>
         </Link>
-        <div className="nav-actions">
-          <Link to="/" className="btn-secondary" style={{ textDecoration: 'none', padding: '10px 20px', borderRadius: '30px', fontSize: '14px' }}>
+        <div className="nav-actions" style={{ display: 'flex', gap: '10px' }}>
+          <Link to="/portal" className="btn-secondary" style={{ textDecoration: 'none', padding: '8px 18px', borderRadius: '30px', fontSize: '13px', border: '1px solid rgba(249, 115, 22, 0.4)', color: '#fb923c' }}>
+            🔀 Worker Portal
+          </Link>
+          <Link to="/" className="btn-secondary" style={{ textDecoration: 'none', padding: '8px 18px', borderRadius: '30px', fontSize: '13px' }}>
             <i className="fas fa-arrow-left" style={{ marginRight: '8px' }}></i> Back to Home
           </Link>
         </div>
@@ -545,6 +548,53 @@ const Booking: React.FC = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* TARGETED DISPATCH BANNER (Waiting for Worker Response) */}
+                {activeBooking.status === 'Pending' && (
+                  <div style={{
+                    background: 'rgba(249, 115, 22, 0.1)',
+                    border: '1px solid rgba(249, 115, 22, 0.35)',
+                    borderRadius: '14px',
+                    padding: '18px 20px',
+                    marginBottom: '25px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '15px',
+                    textAlign: 'left'
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '14px', fontWeight: 700, color: '#fb923c', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span>🔔</span> Direct Notification Dispatched to {activeBooking.selectedProviderName || 'Selected Worker'}!
+                      </div>
+                      <div style={{ fontSize: '12.5px', color: '#cbd5e1', marginTop: '4px' }}>
+                        Worker's dashboard has been alerted. This screen auto-updates the second they click "Accept".
+                      </div>
+                    </div>
+
+                    <a
+                      href="/portal"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        background: 'linear-gradient(135deg, #F97316, #ea580c)',
+                        color: '#fff',
+                        textDecoration: 'none',
+                        padding: '9px 18px',
+                        borderRadius: '25px',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        boxShadow: '0 4px 15px rgba(249, 115, 22, 0.4)'
+                      }}
+                    >
+                      <span>⚡ Open Worker Portal in New Tab ↗</span>
+                    </a>
+                  </div>
+                )}
 
                 {/* PROGRESS PIPELINE STEPS */}
                 <div style={{
